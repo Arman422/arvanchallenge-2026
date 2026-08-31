@@ -2,6 +2,7 @@
 import { isSnippetEmpty } from '~/utils/snippet'
 
 const { activeSnippet, updateSnippetCode, deleteSnippet } = useSnippetSession()
+const { isRunning, runActiveSnippet } = useRunSnippet()
 
 const isDeleteModalOpen = ref(false)
 
@@ -15,6 +16,10 @@ const codeModel = computed({
     updateSnippetCode(activeSnippet.value.id, code)
   }
 })
+
+const canRun = computed(() =>
+  Boolean(activeSnippet.value && !isSnippetEmpty(activeSnippet.value.code) && !isRunning.value)
+)
 
 function requestDelete() {
   if (!activeSnippet.value) {
@@ -83,14 +88,27 @@ function confirmDelete() {
           </p>
         </div>
 
-        <UButton
-          color="error"
-          variant="soft"
-          icon="i-lucide-trash"
-          label="Delete"
-          data-testid="delete-snippet-button"
-          @click="requestDelete"
-        />
+        <div class="flex shrink-0 items-center gap-2">
+          <UButton
+            color="primary"
+            variant="soft"
+            icon="i-lucide-play"
+            :loading="isRunning"
+            label="Run"
+            :disabled="!canRun"
+            data-testid="run-snippet-button"
+            @click="runActiveSnippet"
+          />
+          <UButton
+            color="error"
+            variant="soft"
+            icon="i-lucide-trash"
+            label="Delete"
+            :disabled="isRunning"
+            data-testid="delete-snippet-button"
+            @click="requestDelete"
+          />
+        </div>
       </header>
 
       <ClientOnly>
@@ -98,6 +116,7 @@ function confirmDelete() {
           :key="activeSnippet.id"
           v-model="codeModel"
           language="javascript"
+          :read-only="isRunning"
           class="min-h-0 flex-1"
           data-testid="editor-code-input"
         />
