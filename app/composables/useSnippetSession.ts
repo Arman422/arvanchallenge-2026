@@ -91,6 +91,33 @@ export function useSnippetSession() {
     }, LAST_EDITED_DEBOUNCE_MS)
   }
 
+  function deleteSnippet(id: string) {
+    const index = snippets.value.findIndex(snippet => snippet.id === id)
+    if (index === -1) {
+      return
+    }
+
+    if (pendingLastEditedSnippetId === id) {
+      flushPendingLastEditedAt()
+    }
+
+    const wasActive = activeSnippetId.value === id
+    const nextSnippets = snippets.value.filter(snippet => snippet.id !== id)
+    snippets.value = nextSnippets
+
+    if (!wasActive) {
+      return
+    }
+
+    if (nextSnippets.length === 0) {
+      activeSnippetId.value = null
+      return
+    }
+
+    const nextIndex = Math.min(index, nextSnippets.length - 1)
+    activeSnippetId.value = nextSnippets[nextIndex]!.id
+  }
+
   return {
     snippets,
     activeSnippetId,
@@ -99,5 +126,6 @@ export function useSnippetSession() {
     selectSnippet,
     renameSnippet,
     updateSnippetCode,
+    deleteSnippet
   }
 }

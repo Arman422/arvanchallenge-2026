@@ -15,6 +15,10 @@ export function nextUntitledName(snippets: Snippet[]): string {
   return `untitled-${max + 1}`
 }
 
+export function isSnippetEmpty(code: string): boolean {
+  return code.trim().length === 0
+}
+
 export function formatLastEditedAt(timestamp: number, now = Date.now()): string {
   const elapsedMs = now - timestamp
   const elapsedMinutes = Math.floor(elapsedMs / 60_000)
