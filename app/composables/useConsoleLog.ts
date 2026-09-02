@@ -1,9 +1,10 @@
 import type { ConsoleEntry } from '~/utils/console'
+import type { Snippet } from '~/types/snippet'
 
 export function useConsoleLog() {
   const entries = useState<ConsoleEntry[]>('console-entries', () => [])
 
-  function appendRunning(): string {
+  function appendRunning(snippet: Pick<Snippet, 'id' | 'name'>): string {
     const id = crypto.randomUUID()
 
     entries.value = [
@@ -12,6 +13,8 @@ export function useConsoleLog() {
         id,
         timestamp: Date.now(),
         kind: 'running',
+        snippetId: snippet.id,
+        snippetName: snippet.name,
         message: 'Running…'
       }
     ]

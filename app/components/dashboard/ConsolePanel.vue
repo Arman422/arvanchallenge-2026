@@ -1,18 +1,37 @@
 <script setup lang="ts">
-import { consoleEntryClass, formatConsoleTimestamp } from '~/utils/console'
+import { consoleEntryClass, formatConsoleAttribution, formatConsoleTimestamp } from '~/utils/console'
 
 const { entries, clear } = useConsoleLog()
+const { consoleVisible, toggleConsole } = useDashboardPanels()
 </script>
 
 <template>
   <section
     class="flex min-h-0 flex-col border-t border-default bg-neutral-950 font-mono text-sm text-neutral-400"
+    :class="consoleVisible ? 'h-48' : ''"
     data-testid="console-panel"
   >
-    <div class="flex shrink-0 items-center justify-between border-b border-neutral-800 px-3 py-1.5">
-      <span class="text-xs text-neutral-500">Console</span>
+    <div
+      class="flex shrink-0 items-center justify-between border-b border-neutral-800"
+    >
+      <button
+        type="button"
+        class="flex min-w-0 flex-1 items-center gap-2 px-3 py-1.5 text-left transition-colors hover:bg-neutral-900"
+        :aria-expanded="consoleVisible"
+        :aria-label="consoleVisible ? 'Collapse output console' : 'Expand output console'"
+        :data-testid="consoleVisible ? 'console-hide-button' : 'console-show-button'"
+        @click="toggleConsole"
+      >
+        <UIcon
+          :name="consoleVisible ? 'i-lucide-chevron-down' : 'i-lucide-chevron-up'"
+          class="size-3.5 text-neutral-500"
+        />
+        <span class="text-xs text-neutral-500">Output Console</span>
+      </button>
+
       <UButton
-        v-if="entries.length > 0"
+        v-if="consoleVisible && entries.length > 0"
+        class="me-3"
         label="Clear"
         color="neutral"
         variant="ghost"
@@ -22,46 +41,48 @@ const { entries, clear } = useConsoleLog()
       />
     </div>
 
-    <div
-      v-if="entries.length === 0"
-      class="flex min-h-0 flex-1 items-center justify-center p-4"
-      data-testid="console-empty-state"
-    >
-      <span class="text-xs text-neutral-600">
-        Output will appear here
-      </span>
-    </div>
-
-    <ul
-      v-else
-      class="min-h-0 flex-1 space-y-1 overflow-y-auto p-3"
-      data-testid="console-log"
-    >
-      <li
-        v-for="entry in entries"
-        :key="entry.id"
-        class="flex gap-2"
-        data-testid="console-entry"
+    <template v-if="consoleVisible">
+      <div
+        v-if="entries.length === 0"
+        class="flex min-h-0 flex-1 items-center justify-center p-4"
+        data-testid="console-empty-state"
       >
-        <span
-          class="shrink-0 text-neutral-600"
-          data-testid="console-entry-timestamp"
-        >
-          [{{ formatConsoleTimestamp(entry.timestamp) }}]
+        <span class="text-xs text-neutral-600">
+          Output will appear here
         </span>
-        <span
-          class="min-w-0 break-words"
-          :class="consoleEntryClass(entry.kind)"
-          data-testid="console-entry-message"
+      </div>
+
+      <ul
+        v-else
+        class="min-h-0 flex-1 space-y-1 overflow-y-auto p-3"
+        data-testid="console-log"
+      >
+        <li
+          v-for="entry in entries"
+          :key="entry.id"
+          class="flex gap-2"
+          data-testid="console-entry"
         >
-          <UIcon
-            v-if="entry.kind === 'running'"
-            name="i-lucide-loader-circle"
-            class="mr-1 inline-block size-3.5 animate-spin align-[-2px]"
-          />
-          {{ entry.message }}
-        </span>
-      </li>
-    </ul>
+          <span
+            class="shrink-0 text-neutral-600"
+            data-testid="console-entry-timestamp"
+          >
+            [{{ formatConsoleTimestamp(entry.timestamp) }}]
+          </span>
+          <span
+            class="min-w-0 break-words"
+            :class="consoleEntryClass(entry.kind)"
+            data-testid="console-entry-message"
+          >
+            <UIcon
+              v-if="entry.kind === 'running'"
+              name="i-lucide-loader-circle"
+              class="mr-1 inline-block size-3.5 animate-spin align-[-2px]"
+            />
+            {{ formatConsoleAttribution(entry.snippetName, entry.message) }}
+          </span>
+        </li>
+      </ul>
+    </template>
   </section>
 </template>

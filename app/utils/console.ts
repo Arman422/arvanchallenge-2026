@@ -4,7 +4,13 @@ export type ConsoleEntry = {
   id: string
   timestamp: number
   kind: ConsoleEntryKind
+  snippetId: string
+  snippetName: string
   message: string
+}
+
+export function formatConsoleAttribution(snippetName: string, message: string): string {
+  return `${snippetName} › ${message}`
 }
 
 export function formatConsoleTimestamp(timestamp: number): string {

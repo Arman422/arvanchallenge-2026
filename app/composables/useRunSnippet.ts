@@ -32,7 +32,7 @@ export function useRunSnippet() {
     }
 
     isRunning.value = true
-    const entryId = appendRunning()
+    const entryId = appendRunning({ id: snippet.id, name: snippet.name })
 
     try {
       const result = await $fetch<RunApiResponse>('/api/run', {
