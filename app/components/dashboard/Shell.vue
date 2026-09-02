@@ -2,17 +2,17 @@
 const INITIAL_LOAD_MIN_MS = 1000
 
 const isLoading = ref(true)
-let loadingTimer: ReturnType<typeof window.setTimeout> | undefined
+let loadingTimer: ReturnType<typeof setTimeout> | undefined
 
 onMounted(() => {
-  loadingTimer = window.setTimeout(() => {
+  loadingTimer = setTimeout(() => {
     isLoading.value = false
   }, INITIAL_LOAD_MIN_MS)
 })
 
 onUnmounted(() => {
   if (loadingTimer !== undefined) {
-    window.clearTimeout(loadingTimer)
+    clearTimeout(loadingTimer)
   }
 })
 </script>
@@ -40,8 +40,10 @@ onUnmounted(() => {
       class="flex min-h-0 flex-1"
       data-testid="dashboard-layout"
     >
-      <DashboardSnippetListPanel class="w-64 shrink-0 border-e border-default" />
+      <DashboardSnippetListPanel class="shrink-0 border-e border-default" />
       <DashboardWorkingArea class="min-w-0 flex-1" />
     </div>
+
+    <DashboardConsolePanel class="shrink-0" />
   </div>
 </template>

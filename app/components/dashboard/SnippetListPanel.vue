@@ -53,11 +53,12 @@ function handleRenameKeydown(event: KeyboardEvent) {
 
 <template>
   <aside
-    class="flex h-full min-h-0 flex-col bg-elevated/50"
+    class="flex h-full w-64 min-h-0 flex-col bg-elevated/50"
     data-testid="snippet-list-panel"
   >
-    <div class="shrink-0 border-b border-default p-3">
+    <div class="flex shrink-0 items-center gap-1 border-b border-default p-2">
       <UButton
+        class="min-w-0 flex-1"
         block
         icon="i-lucide-plus"
         label="New Snippet"
