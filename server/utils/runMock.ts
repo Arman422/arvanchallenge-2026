@@ -18,8 +18,8 @@ export type RunMockOptions = {
   random?: () => number
 }
 
-const MIN_DELAY_MS = 1000
-const MAX_DELAY_MS = 2000
+const MIN_DELAY_MS = 2000
+const MAX_DELAY_MS = 3000
 const SUCCESS_THRESHOLD = 0.8
 
 function defaultDelay(ms: number) {
