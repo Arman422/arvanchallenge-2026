@@ -1,43 +1,20 @@
-# Nuxt Starter Template
+# Code Snippet Dashboard
 
-[![Nuxt UI](https://img.shields.io/badge/Made%20with-Nuxt%20UI-00DC82?logo=nuxt&labelColor=020420)](https://ui.nuxt.com)
+A Nuxt dashboard for writing and managing JavaScript code snippets in a single browser session. Select snippets from a flat list, edit in Monaco, run against a mock execution API, and read timestamped output in a shared **Output Console** at the bottom of the page (the challenge’s “Output Console Simulation” requirement).
 
-Use this template to get started with [Nuxt UI](https://ui.nuxt.com) quickly.
-
-- [Live demo](https://starter-template.nuxt.dev/)
-- [Documentation](https://ui.nuxt.com/docs/getting-started/installation/nuxt)
-
-<a href="https://starter-template.nuxt.dev/" target="_blank">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://ui.nuxt.com/assets/templates/nuxt/starter-dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="https://ui.nuxt.com/assets/templates/nuxt/starter-light.png">
-    <img alt="Nuxt Starter Template" src="https://ui.nuxt.com/assets/templates/nuxt/starter-light.png" width="830" height="466">
-  </picture>
-</a>
-
-> The starter template for Vue is on https://github.com/nuxt-ui-templates/starter-vue.
-
-## Quick Start
-
-```bash [Terminal]
-npm create nuxt@latest -- -t ui
-```
-
-## Deploy your own
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-name=starter&repository-url=https%3A%2F%2Fgithub.com%2Fnuxt-ui-templates%2Fstarter&demo-image=https%3A%2F%2Fui.nuxt.com%2Fassets%2Ftemplates%2Fnuxt%2Fstarter-dark.png&demo-url=https%3A%2F%2Fstarter-template.nuxt.dev%2F&demo-title=Nuxt%20Starter%20Template&demo-description=A%20minimal%20template%20to%20get%20started%20with%20Nuxt%20UI.)
+Built with [Nuxt](https://nuxt.com), [Nuxt UI](https://ui.nuxt.com), and [Monaco Editor](https://microsoft.github.io/monaco-editor/).
 
 ## Setup
 
-Make sure to install the dependencies:
+Install dependencies:
 
 ```bash
 pnpm install
 ```
 
-## Development Server
+## Development
 
-Start the development server on `http://localhost:3000`:
+Start the dev server at `http://localhost:3000`:
 
 ```bash
 pnpm dev
@@ -45,20 +22,93 @@ pnpm dev
 
 ## Production
 
-Build the application for production:
+Build for production:
 
 ```bash
 pnpm build
 ```
 
-Locally preview production build:
+Preview the production build locally:
 
 ```bash
 pnpm preview
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## Scripts
 
-## Renovate integration
+| Command | Description |
+| --- | --- |
+| `pnpm dev` | Start development server |
+| `pnpm build` | Build for production |
+| `pnpm preview` | Preview production build |
+| `pnpm lint` | Run ESLint |
+| `pnpm typecheck` | Run Nuxt TypeScript checks |
+| `pnpm test` | Run tests |
 
-Install [Renovate GitHub app](https://github.com/apps/renovate/installations/select_target) on your repository and you are good to go.
+## Testing
+
+We prefer colocated tests — test files live beside the module they cover.
+
+## Mock API
+
+The dashboard does **not** execute JavaScript. Running a snippet sends a `POST` request to `/api/run`:
+
+**Request**
+
+```json
+{ "code": "<non-empty string>" }
+```
+
+**Responses**
+
+| Outcome | HTTP | Body |
+| --- | --- | --- |
+| Success (~80%) | 200 | `{ "status": "success", "output": "Hello World" }` |
+| Simulated error (~20%) | 200 | `{ "status": "error", "message": "Simulated execution failed" }` |
+| Invalid payload | 400 | Empty or missing `code` is rejected |
+
+Each request waits a random **2–3 seconds** before responding so loading UX can be evaluated. While a run is in flight the editor is read-only and the Run button shows a spinner.
+
+## Layout and responsive behavior
+
+The **dashboard shell** splits into two regions:
+
+- **Workspace** (top) — snippet list panel (left) and snippet details (right)
+- **Output Console** (bottom) — full-width session log spanning beneath both columns
+
+Snippet details shows a placeholder when nothing is selected, or the editor zone (toolbar + Monaco) when a snippet is active. The Output Console is session-scoped: one shared log for all runs, with each entry tagged by snippet name (`[HH:MM:SS] snippetName › message`).
+
+The Output Console does **not** auto-open when you run a snippet.
+
+### Breakpoints and panel defaults
+
+| Viewport | Width | Snippet list default | Output Console default |
+| --- | --- | --- | --- |
+| Desktop | ≥ 1024px (`lg`) | Expanded | Expanded |
+| Tablet | 768–1023px (`md`–`lg`) | Expanded | Expanded |
+| Mobile | < 768px (below `md`) | Icon rail (collapsed) | Collapsed (strip only) |
+
+Breakpoints use Tailwind defaults via VueUse `useBreakpoints`. Panel defaults are applied on first load from the current viewport; expand/collapse persists for the session regardless of resize.
+
+### Snippet list toggle
+
+Collapse the snippet list to a narrow **icon rail** (48px) via the panel toggle in the list header. The rail shows a New Snippet button and one icon per snippet (with tooltip labels). Expand restores the full list with names and metadata. The same toggle behavior applies on desktop, tablet, and mobile.
+
+### Output Console toggle
+
+Expand/collapse via the persistent strip labeled **Output Console** at the bottom of the shell. Collapsed state shows the strip only; expanded state shows the log beneath it. The whole strip is clickable; Clear does not collapse the panel.
+
+## Project structure
+
+```
+app/
+  components/dashboard/   # Shell, snippet list, snippet details, editor, console
+  composables/            # Session state, run flow, panel layout
+docs/
+  adr/                    # Architecture decision records
+server/
+  api/run.post.ts         # Mock execution endpoint
+  utils/runMock.ts        # Validation, delay, random outcomes
+```
+
+See `CONTEXT.md` for domain terminology and `docs/adr/` for layout decisions.
