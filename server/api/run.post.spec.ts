@@ -2,8 +2,8 @@ import { createServer, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { createApp, toNodeListener } from 'h3'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import runHandler from '../../server/api/run.post'
-import * as runMock from '../../server/utils/runMock'
+import runHandler from './run.post'
+import * as runMock from '../utils/runMock'
 
 describe('POST /api/run handler', () => {
   let server: Server

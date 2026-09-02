@@ -1,0 +1,31 @@
+---
+description: Colocate tests with the module they test
+globs: **/*.{ts,vue}
+alwaysApply: false
+---
+
+# Colocated tests
+
+Place test files next to the module they test — not in a separate `test/` tree keyed by test type.
+
+## Naming
+
+Use `*.spec.ts` or `*.test.ts` beside the source file:
+
+- `app/utils/console.ts` → `app/utils/console.spec.ts`
+- `server/api/run.post.ts` → `server/api/run.post.spec.ts`
+- `app/composables/useConsoleLog.ts` → `app/composables/useConsoleLog.spec.ts`
+
+For tests that need the Nuxt environment, use `*.nuxt.spec.ts` beside the source.
+
+## Imports
+
+Import the module under test with a sibling path:
+
+```typescript
+import { formatConsoleTimestamp } from './console'
+```
+
+## Discovery
+
+Vitest picks up colocated tests under `app/` and `server/` (see `vitest.config.ts`).

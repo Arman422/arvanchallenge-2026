@@ -4,7 +4,7 @@ import {
   parseRunCode,
   RUN_MOCK_ERROR_MESSAGE,
   RUN_MOCK_SUCCESS_OUTPUT
-} from '../../server/utils/runMock'
+} from './runMock'
 
 describe('parseRunCode', () => {
   it('rejects missing code', () => {
@@ -36,7 +36,7 @@ describe('executeRunMock', () => {
       status: 'success',
       output: RUN_MOCK_SUCCESS_OUTPUT
     })
-    expect(delay).toHaveBeenCalledWith(1000)
+    expect(delay).toHaveBeenCalledWith(2000)
   })
 
   it('returns error when randomness is stubbed to failure', async () => {
@@ -52,6 +52,6 @@ describe('executeRunMock', () => {
       status: 'error',
       message: RUN_MOCK_ERROR_MESSAGE
     })
-    expect(delay).toHaveBeenCalledWith(1500)
+    expect(delay).toHaveBeenCalledWith(2500)
   })
 })
