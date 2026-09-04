@@ -1,6 +1,6 @@
 import type { Snippet, SnippetLanguage } from '~/types/snippet'
 
-const UNTITLED_NAME_PATTERN = /^untitled-(\d+)$/
+const UNTITLED_NAME_PATTERN = /^snippet-(\d+)$/
 const SNIPPET_LANGUAGES: readonly SnippetLanguage[] = ['JavaScript']
 
 export const SNIPPET_LIST_STORAGE_KEY = 'snippet-dashboard:snippet-list'
@@ -25,7 +25,7 @@ export function nextUntitledName(snippets: Snippet[]): string {
     }
   }
 
-  return `untitled-${max + 1}`
+  return `snippet-${max + 1}`
 }
 
 export function isSnippetEmpty(code: string): boolean {

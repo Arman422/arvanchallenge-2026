@@ -9,7 +9,7 @@ import {
 const sample: Snippet[] = [
   {
     id: 'a1',
-    name: 'untitled-1',
+    name: 'snippet-1',
     code: 'console.log(1)',
     language: 'JavaScript',
     lastEditedAt: 1_700_000_000_000

@@ -4,6 +4,7 @@ import {
   SNIPPET_LIST_STORAGE_KEY,
   adoptRemoteSnippetList,
   createSnippetListWriter,
+  nextUntitledName,
   parseSnippetList,
   readSnippetListFromStorage,
   serializeSnippetList,
@@ -13,7 +14,7 @@ import {
 const sampleSnippets: Snippet[] = [
   {
     id: 'a1',
-    name: 'untitled-1',
+    name: 'snippet-1',
     code: 'console.log(1)',
     language: 'JavaScript',
     lastEditedAt: 1_700_000_000_000
@@ -26,6 +27,27 @@ const sampleSnippets: Snippet[] = [
     lastEditedAt: 1_700_000_000_100
   }
 ]
+
+describe('nextUntitledName', () => {
+  it('returns snippet-1 when the list is empty', () => {
+    expect(nextUntitledName([])).toBe('snippet-1')
+  })
+
+  it('increments past the highest existing snippet-N name', () => {
+    expect(nextUntitledName(sampleSnippets)).toBe('snippet-2')
+    expect(nextUntitledName([
+      { ...sampleSnippets[0]!, name: 'snippet-3' },
+      { ...sampleSnippets[1]!, name: 'snippet-7' }
+    ])).toBe('snippet-8')
+  })
+
+  it('ignores names that are not snippet-N', () => {
+    expect(nextUntitledName([
+      { ...sampleSnippets[0]!, name: 'untitled-9' },
+      { ...sampleSnippets[1]!, name: 'helper' }
+    ])).toBe('snippet-1')
+  })
+})
 
 function createMemoryStorage(initial: Record<string, string> = {}) {
   const store = new Map<string, string>(Object.entries(initial))
