@@ -1,6 +1,8 @@
 # Code Snippet Dashboard
 
-A Nuxt dashboard for writing and managing JavaScript code snippets in a single browser session. Select snippets from a flat list, edit in Monaco, run against a mock execution API, and read timestamped output in a shared **Output Console** at the bottom of the page (the challenge’s “Output Console Simulation” requirement).
+A Nuxt dashboard for writing and managing JavaScript code snippets in the browser. Select snippets from a flat list, edit in Monaco, run against a mock execution API, and read timestamped output in a shared **Output Console** at the bottom of the page (the challenge’s “Output Console Simulation” requirement).
+
+The **snippet list** is persisted in same-origin browser storage (`localStorage`) and stays in sync across tabs of the same browser profile. The active selection, Output Console history, panel expand/collapse, and run lock stay tab/session-local — they are not written to storage and are not shared across tabs.
 
 Built with [Nuxt](https://nuxt.com), [Nuxt UI](https://ui.nuxt.com), and [Monaco Editor](https://microsoft.github.io/monaco-editor/).
 
@@ -76,7 +78,9 @@ The **dashboard shell** splits into two regions:
 - **Workspace** (top) — snippet list panel (left) and snippet details (right)
 - **Output Console** (bottom) — full-width session log spanning beneath both columns
 
-Snippet details shows a placeholder when nothing is selected, or the editor zone (toolbar + Monaco) when a snippet is active. The Output Console is session-scoped: one shared log for all runs, with each entry tagged by snippet name (`[HH:MM:SS] snippetName › message`).
+Snippet details shows a placeholder when nothing is selected, or the editor zone (toolbar + Monaco) when a snippet is active. The Output Console is session-scoped: one shared log for all runs in the current tab, with each entry tagged by snippet name (`[HH:MM:SS] snippetName › message`). Reloading or opening a new tab restores the snippet list from browser storage with **no** active snippet (details stays on the placeholder until you select or create one); the console starts empty again.
+
+Edits bind directly to snippets — no save button and no dirty indicators. Create, rename, and delete write through to storage immediately; code edits debounce (~300ms). Other tabs of the same origin quietly adopt the latest whole-list snapshot.
 
 The Output Console does **not** auto-open when you run a snippet.
 
@@ -111,4 +115,4 @@ server/
   utils/runMock.ts        # Validation, delay, random outcomes
 ```
 
-See `CONTEXT.md` for domain terminology and `docs/adr/` for layout decisions.
+See `CONTEXT.md` for domain terminology and `docs/adr/` for layout and persistence decisions (including [ADR 0002](docs/adr/0002-browser-persisted-snippet-list.md) for the browser-persisted snippet list).
