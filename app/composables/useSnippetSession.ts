@@ -1,15 +1,13 @@
 import type { Snippet } from '~/types/snippet'
 import {
-  createSnippetListWriter,
-  readSnippetListFromStorage,
-  type SnippetListStorage
-} from '~/utils/snippetListPersistence'
-import {
   SNIPPET_LIST_STORAGE_KEY,
   adoptRemoteSnippetList,
-  parseSnippetList
-} from '~/utils/snippetStorage'
-import { nextUntitledName } from '~/utils/snippet'
+  createSnippetListWriter,
+  nextUntitledName,
+  parseSnippetList,
+  readSnippetListFromStorage,
+  type SnippetListStorage
+} from '~/utils/snippet'
 
 const LAST_EDITED_DEBOUNCE_MS = 300
 

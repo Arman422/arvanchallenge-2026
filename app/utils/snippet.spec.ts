@@ -3,9 +3,12 @@ import type { Snippet } from '~/types/snippet'
 import {
   SNIPPET_LIST_STORAGE_KEY,
   adoptRemoteSnippetList,
+  createSnippetListWriter,
   parseSnippetList,
-  serializeSnippetList
-} from './snippetStorage'
+  readSnippetListFromStorage,
+  serializeSnippetList,
+  writeSnippetListToStorage
+} from './snippet'
 
 const sampleSnippets: Snippet[] = [
   {
@@ -23,6 +26,20 @@ const sampleSnippets: Snippet[] = [
     lastEditedAt: 1_700_000_000_100
   }
 ]
+
+function createMemoryStorage(initial: Record<string, string> = {}) {
+  const store = new Map<string, string>(Object.entries(initial))
+
+  return {
+    getItem(key: string) {
+      return store.has(key) ? store.get(key)! : null
+    },
+    setItem(key: string, value: string) {
+      store.set(key, value)
+    },
+    raw: store
+  }
+}
 
 describe('SNIPPET_LIST_STORAGE_KEY', () => {
   it('is a stable same-origin storage key for the snippet list', () => {
@@ -81,5 +98,35 @@ describe('adoptRemoteSnippetList', () => {
       snippets: sampleSnippets,
       activeSnippetId: null
     })
+  })
+})
+
+describe('readSnippetListFromStorage / writeSnippetListToStorage', () => {
+  it('writes and reads the snippet list under the stable key', () => {
+    const storage = createMemoryStorage()
+
+    writeSnippetListToStorage(storage, sampleSnippets)
+
+    expect(storage.raw.get(SNIPPET_LIST_STORAGE_KEY)).toBeDefined()
+    expect(readSnippetListFromStorage(storage)).toEqual(sampleSnippets)
+  })
+
+  it('returns an empty list when storage has no entry', () => {
+    expect(readSnippetListFromStorage(createMemoryStorage())).toEqual([])
+  })
+})
+
+describe('createSnippetListWriter', () => {
+  it('writeImmediate persists the current list right away', () => {
+    const storage = createMemoryStorage()
+    let snippets = [sampleSnippets[0]!]
+    const writer = createSnippetListWriter(storage, () => snippets)
+
+    snippets = [{ ...sampleSnippets[0]!, name: 'renamed' }]
+    writer.writeImmediate()
+
+    expect(readSnippetListFromStorage(storage)).toEqual([
+      { ...sampleSnippets[0]!, name: 'renamed' }
+    ])
   })
 })

@@ -4,7 +4,7 @@ import type { Snippet } from '~/types/snippet'
 import {
   SNIPPET_LIST_STORAGE_KEY,
   serializeSnippetList
-} from '~/utils/snippetStorage'
+} from '~/utils/snippet'
 
 const sample: Snippet[] = [
   {
