@@ -111,6 +111,9 @@ onMounted(async () => {
     fontSize: 14,
     tabSize: 2,
     padding: { top: 16, bottom: 16 },
+    lineNumbersMinChars: 3,
+    lineDecorationsWidth: 8,
+    glyphMargin: false,
     // Snippet pad: no autocomplete / suggestions (ADR 0004).
     quickSuggestions: false,
     suggestOnTriggerCharacters: false,
