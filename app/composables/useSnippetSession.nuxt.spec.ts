@@ -58,7 +58,14 @@ describe('useSnippetSession persistence', () => {
     const { useSnippetSession } = await import('./useSnippetSession')
     const session = useSnippetSession({ storage })
 
-    session.createSnippet()
+    const created = session.createSnippet()
+    expect(created).toMatchObject({
+      name: 'snippet-1',
+      code: '',
+      language: 'JavaScript'
+    })
+    expect(created.id).toBeTruthy()
+    expect(session.activeSnippetId.value).toBe(created.id)
     expect(storage.raw.get(SNIPPET_LIST_STORAGE_KEY)).toBeDefined()
     const afterCreate = JSON.parse(storage.raw.get(SNIPPET_LIST_STORAGE_KEY)!) as Snippet[]
     expect(afterCreate).toHaveLength(1)

@@ -123,7 +123,7 @@ export function useSnippetSession(options: SnippetSessionOptions = {}) {
     storageListenerAttached = true
   }
 
-  function createSnippet() {
+  function createSnippet(): Snippet {
     const snippet: Snippet = {
       id: crypto.randomUUID(),
       name: nextUntitledName(snippets.value),
@@ -135,6 +135,7 @@ export function useSnippetSession(options: SnippetSessionOptions = {}) {
     snippets.value = [...snippets.value, snippet]
     activeSnippetId.value = snippet.id
     persistImmediate()
+    return snippet
   }
 
   function selectSnippet(id: string) {

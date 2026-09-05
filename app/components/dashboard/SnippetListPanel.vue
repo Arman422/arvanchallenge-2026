@@ -9,44 +9,70 @@ const {
   selectSnippet,
   renameSnippet
 } = useSnippetSession()
+const { focusCodeEditor } = useCodeEditorFocus()
 
 const editingSnippetId = ref<string | null>(null)
 const editingName = ref('')
+const renameInputRef = ref<HTMLInputElement | null>(null)
 
-function startRename(snippet: Snippet) {
-  editingSnippetId.value = snippet.id
-  editingName.value = snippet.name
+function setRenameInputRef(el: Element | null) {
+  renameInputRef.value = el instanceof HTMLInputElement ? el : null
 }
 
-function commitRename() {
+async function startRename(snippet: Snippet) {
+  editingSnippetId.value = snippet.id
+  editingName.value = snippet.name
+  await nextTick()
+  const input = renameInputRef.value
+  if (!input) {
+    return
+  }
+  input.focus()
+  input.select()
+}
+
+function handleCreateSnippet() {
+  const snippet = createSnippet()
+  void startRename(snippet)
+}
+
+function commitRename(options: { focusEditor?: boolean } = {}) {
   if (editingSnippetId.value === null) {
     return
   }
 
   const renamed = renameSnippet(editingSnippetId.value, editingName.value)
   if (!renamed) {
-    cancelRename()
+    cancelRename(options)
     return
   }
 
   editingSnippetId.value = null
   editingName.value = ''
+
+  if (options.focusEditor) {
+    focusCodeEditor()
+  }
 }
 
-function cancelRename() {
+function cancelRename(options: { focusEditor?: boolean } = {}) {
   editingSnippetId.value = null
   editingName.value = ''
+
+  if (options.focusEditor) {
+    focusCodeEditor()
+  }
 }
 
 function handleRenameKeydown(event: KeyboardEvent) {
   if (event.key === 'Enter') {
     event.preventDefault()
-    commitRename()
+    commitRename({ focusEditor: true })
   }
 
   if (event.key === 'Escape') {
     event.preventDefault()
-    cancelRename()
+    cancelRename({ focusEditor: true })
   }
 }
 </script>
@@ -63,7 +89,7 @@ function handleRenameKeydown(event: KeyboardEvent) {
         icon="i-lucide-plus"
         label="New Snippet"
         data-testid="new-snippet-button"
-        @click="createSnippet"
+        @click="handleCreateSnippet"
       />
     </div>
 
@@ -107,11 +133,11 @@ function handleRenameKeydown(event: KeyboardEvent) {
             @click.stop
           >
             <input
+              :ref="setRenameInputRef"
               v-model="editingName"
               type="text"
               class="w-full rounded border border-default bg-default px-2 py-1 text-sm text-highlighted outline-none focus:border-primary"
               data-testid="snippet-rename-input"
-              autofocus
               @keydown="handleRenameKeydown"
               @blur="commitRename"
             >
@@ -126,11 +152,10 @@ function handleRenameKeydown(event: KeyboardEvent) {
             {{ snippet.name }}
           </span>
 
-          <div class="flex items-center gap-2 text-xs text-muted">
+          <div class="flex justify-between gap-2 text-xs text-muted">
             <span data-testid="snippet-list-item-language">
               {{ snippet.language }}
             </span>
-            <span aria-hidden="true">·</span>
             <span data-testid="snippet-list-item-last-edited">
               {{ formatLastEditedAt(snippet.lastEditedAt) }}
             </span>

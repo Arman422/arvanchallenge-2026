@@ -56,6 +56,10 @@ _Avoid_: Working area, main panel, detail pane
 The toolbar and code editor within snippet details for the active snippet.
 _Avoid_: Editor pane, code panel, tab bar
 
+**Rename snippet**:
+Changing a snippet's display name via inline edit in the snippet list. Starts automatically after creating a snippet (default name selected), or by double-clicking an existing name. Escape or confirming an empty name keeps the previous name. Enter or Escape moves focus to the editor; blur does not.
+_Avoid_: File rename, title edit, retitle
+
 **Delete snippet**:
 Removing a snippet from the snippet list via an action in the editor zone when that snippet is active. Non-empty snippets require confirmation; empty snippets delete silently. Does not remove that snippet's console entries.
 _Avoid_: Close tab, dismiss, remove file

@@ -16,9 +16,14 @@ const emit = defineEmits<{
 
 const colorMode = useColorMode()
 const containerRef = ref<HTMLElement | null>(null)
+const { registerCodeEditorFocus } = useCodeEditorFocus()
 
 let editorInstance: editor.IStandaloneCodeEditor | null = null
 let monacoModule: typeof import('monaco-editor') | null = null
+
+function focusEditor() {
+  editorInstance?.focus()
+}
 
 function applyTheme() {
   if (!monacoModule) {
@@ -63,6 +68,8 @@ onMounted(async () => {
       emit('update:modelValue', value)
     }
   })
+
+  registerCodeEditorFocus(focusEditor)
 })
 
 watch(() => props.modelValue, (value) => {
@@ -77,6 +84,7 @@ watch(() => props.readOnly, applyReadOnly)
 watch(() => colorMode.value, applyTheme)
 
 onBeforeUnmount(() => {
+  registerCodeEditorFocus(null)
   editorInstance?.dispose()
   editorInstance = null
   monacoModule = null

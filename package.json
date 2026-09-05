@@ -24,6 +24,7 @@
   "devDependencies": {
     "@nuxt/eslint": "^1.17.0",
     "@nuxt/test-utils": "^4.2.0",
+    "@vue/test-utils": "^2.5.0",
     "@vueuse/nuxt": "^14.4.0",
     "eslint": "^10.9.0",
     "h3": "1.15.11",
