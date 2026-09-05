@@ -94,7 +94,7 @@ function handleRenameKeydown(event: KeyboardEvent) {
       >
         <button
           type="button"
-          class="flex w-full flex-col gap-1 rounded-md px-3 py-2 text-start transition-colors"
+          class="flex w-full cursor-pointer flex-col gap-1 rounded-md px-3 py-2 text-start transition-colors"
           :class="snippet.id === activeSnippetId
             ? 'bg-primary/10 text-primary'
             : 'hover:bg-elevated'"

@@ -8,7 +8,7 @@ export default defineAppConfig({
       slots: {
         // Fixed px radii — Nuxt's rounded-* scale multiplies --ui-radius
         // https://sorkhab.arvancloud.ir/components/button/
-        base: 'rounded-[12px] font-normal gap-2'
+        base: 'cursor-pointer rounded-[12px] font-normal gap-2'
       },
       variants: {
         size: {

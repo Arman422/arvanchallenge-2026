@@ -16,7 +16,7 @@ const { consoleVisible, toggleConsole } = useDashboardPanels()
     >
       <button
         type="button"
-        class="flex min-w-0 flex-1 items-center gap-2 px-3 py-1.5 text-left transition-colors hover:bg-accented/50"
+        class="flex min-w-0 flex-1 cursor-pointer items-center gap-2 px-3 py-1.5 text-left transition-colors hover:bg-accented/50"
         :aria-expanded="consoleVisible"
         :aria-label="consoleVisible ? 'Collapse output console' : 'Expand output console'"
         :data-testid="consoleVisible ? 'console-hide-button' : 'console-show-button'"
