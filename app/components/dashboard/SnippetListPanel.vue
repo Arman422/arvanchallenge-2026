@@ -94,7 +94,7 @@ function handleRenameKeydown(event: KeyboardEvent) {
 <template>
   <aside
     class="flex h-full min-h-0 flex-col bg-elevated/50"
-    :class="showIconRail ? 'w-12' : 'w-64'"
+    :class="showIconRail ? 'w-12' : tier === 'mobile' ? 'w-full' : 'w-64'"
     data-testid="snippet-list-panel"
     :data-rail="showIconRail ? 'true' : undefined"
   >

@@ -1,8 +1,18 @@
 <script setup lang="ts">
 const INITIAL_LOAD_MIN_MS = 1000
 
+const { tier } = useViewportTier()
+const { activeSnippetId } = useSnippetSession()
+
 const isLoading = ref(true)
 let loadingTimer: ReturnType<typeof setTimeout> | undefined
+
+const showSnippetList = computed(
+  () => tier.value !== 'mobile' || activeSnippetId.value === null
+)
+const showSnippetDetails = computed(
+  () => tier.value !== 'mobile' || activeSnippetId.value !== null
+)
 
 onMounted(() => {
   loadingTimer = setTimeout(() => {
@@ -42,8 +52,15 @@ onUnmounted(() => {
       class="flex min-h-0 flex-1"
       data-testid="dashboard-layout"
     >
-      <DashboardSnippetListPanel class="shrink-0 border-e border-default dark:border-[#4c4c4c]" />
-      <DashboardWorkingArea class="min-w-0 flex-1" />
+      <DashboardSnippetListPanel
+        v-if="showSnippetList"
+        class="shrink-0 border-e border-default dark:border-[#4c4c4c]"
+        :class="tier === 'mobile' ? 'min-w-0 flex-1 border-e-0' : ''"
+      />
+      <DashboardWorkingArea
+        v-if="showSnippetDetails"
+        class="min-w-0 flex-1"
+      />
     </div>
 
     <DashboardConsolePanel class="shrink-0" />

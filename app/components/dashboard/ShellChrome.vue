@@ -9,8 +9,12 @@ import {
 const { tier } = useViewportTier()
 const colorMode = useColorMode()
 const { snippetListExpanded, toggleSnippetList } = useDashboardPanels()
+const { activeSnippetId, clearActiveSnippet } = useSnippetSession()
 
 const showListToggle = computed(() => tier.value !== 'mobile')
+const showBack = computed(
+  () => tier.value === 'mobile' && activeSnippetId.value !== null
+)
 const showIconRail = computed(
   () => showListToggle.value && !snippetListExpanded.value
 )
@@ -64,6 +68,23 @@ function toggleTheme() {
         :title="listToggleLabel"
         data-testid="snippet-list-toggle"
         @click="toggleSnippetList"
+      />
+    </div>
+
+    <div
+      v-else-if="showBack"
+      class="relative z-10 flex shrink-0 items-center"
+    >
+      <UButton
+        color="neutral"
+        variant="ghost"
+        size="sm"
+        square
+        icon="i-lucide-arrow-left"
+        aria-label="Back to snippet list"
+        title="Back to snippet list"
+        data-testid="shell-back-button"
+        @click="clearActiveSnippet"
       />
     </div>
 

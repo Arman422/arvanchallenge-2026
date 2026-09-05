@@ -149,6 +149,11 @@ export function useSnippetSession(options: SnippetSessionOptions = {}) {
     activeSnippetId.value = id
   }
 
+  function clearActiveSnippet() {
+    persistPendingCodeEditIfAny()
+    activeSnippetId.value = null
+  }
+
   function renameSnippet(id: string, name: string): boolean {
     const trimmedName = name.trim()
     if (!trimmedName) {
@@ -231,6 +236,7 @@ export function useSnippetSession(options: SnippetSessionOptions = {}) {
     activeSnippet,
     createSnippet,
     selectSnippet,
+    clearActiveSnippet,
     renameSnippet,
     updateSnippetCode,
     updateSnippetLanguage,

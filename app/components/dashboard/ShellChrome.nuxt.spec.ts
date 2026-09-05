@@ -3,6 +3,7 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
 import { __setViewportTierForTests } from '~/composables/useViewportTier'
 import { useDashboardPanels } from '~/composables/useDashboardPanels'
+import { useSnippetSession } from '~/composables/useSnippetSession'
 import ShellChrome from './ShellChrome.vue'
 
 describe('ShellChrome', () => {
@@ -12,6 +13,9 @@ describe('ShellChrome', () => {
     __setViewportTierForTests('desktop')
     const colorMode = useColorMode()
     colorMode.preference = 'light'
+    const session = useSnippetSession()
+    session.activeSnippetId.value = null
+    session.snippets.value = []
   })
 
   afterEach(() => {
@@ -81,5 +85,29 @@ describe('ShellChrome', () => {
     __setViewportTierForTests('mobile')
     await nextTick()
     expect(wrapper!.find('[data-testid="snippet-list-toggle"]').exists()).toBe(false)
+  })
+
+  it('shows a back control on mobile only when a snippet is active, and clears selection', async () => {
+    await mountChrome()
+    const session = useSnippetSession()
+
+    expect(wrapper!.find('[data-testid="shell-back-button"]').exists()).toBe(false)
+
+    session.createSnippet()
+    await nextTick()
+    expect(wrapper!.find('[data-testid="shell-back-button"]').exists()).toBe(false)
+
+    __setViewportTierForTests('tablet')
+    await nextTick()
+    expect(wrapper!.find('[data-testid="shell-back-button"]').exists()).toBe(false)
+
+    __setViewportTierForTests('mobile')
+    await nextTick()
+    expect(wrapper!.find('[data-testid="shell-back-button"]').exists()).toBe(true)
+
+    await wrapper!.get('[data-testid="shell-back-button"]').trigger('click')
+    await nextTick()
+    expect(session.activeSnippetId.value).toBeNull()
+    expect(wrapper!.find('[data-testid="shell-back-button"]').exists()).toBe(false)
   })
 })
