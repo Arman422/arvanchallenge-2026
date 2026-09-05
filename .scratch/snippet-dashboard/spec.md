@@ -26,7 +26,7 @@ The product follows an Obsidian-like mental model — the snippet list is the in
 3. As a developer, I want a newly created snippet to become active immediately in snippet details with a default name like `untitled-1`, so that I can start typing without extra steps.
 4. As a developer, I want to see all my snippets in a flat list with no folders or file explorer, so that the mental model stays simple.
 5. As a developer, I want to click a snippet in the list to make it the active snippet, so that I can switch between snippets I am working on.
-6. As a developer, I want to double-click a snippet name to rename it inline, so that I can organize my snippets without a separate dialog.
+6. As a developer, I want to rename a snippet inline from the list (double-click on pointer devices; explicit edit control on mobile), so that I can organize my snippets without a separate dialog.
 7. As a developer, I want each snippet to retain its code when I select a different snippet in the list, so that edits are not lost when switching snippets.
 7a. As a developer, I want my snippet list to survive a full page reload in the same browser, so that I do not lose work when refreshing.
 7b. As a developer, I want the snippet list to stay in sync across tabs of the same origin, so that creating or editing in one tab is reflected when I switch to another.
@@ -60,7 +60,7 @@ The product follows an Obsidian-like mental model — the snippet list is the in
 32. As a reviewer, I want the mock API to return success roughly 80% of the time, so that happy-path handling can be evaluated.
 33. As a reviewer, I want the mock API to return a simulated server error roughly 20% of the time, so that error-path handling can be evaluated.
 34. As a developer, I want the app built with Nuxt and Nuxt UI, so that it aligns with the company's Vue ecosystem.
-35. As a developer, I want the UI to respect system light/dark preference, so that it works in either color mode without a custom theme pass yet.
+35. As a developer, I want an in-app theme toggle in shell chrome (with first visit following system appearance), so that I can switch light/dark without relying on the OS after the initial snapshot.
 36. As a developer, I want the layout to work on desktop, tablet, and mobile, so that the challenge's responsive requirement is met.
 37. As a developer, I want a README with setup instructions and a brief explanation of the mock API, so that reviewers can run and understand the project.
 38. As a developer, I want meaningful git commits as I build each slice, so that my workflow is visible to reviewers.
@@ -96,23 +96,25 @@ The product follows an Obsidian-like mental model — the snippet list is the in
 
 ### Layout (desktop — decided)
 
+- **Shell chrome**: Top strip of the dashboard shell — theme toggle; product title on desktop. See [ADR 0005](../../docs/adr/0005-shell-chrome-and-mobile-stack.md).
 - **Workspace row**:
-  - **Snippet list panel**: Left column, full height of the workspace row. Contains "New Snippet", the flat snippet list with metadata per row, and active-row highlight. Togglable to an icon rail on narrower viewports.
+  - **Snippet list panel**: Left column, full height of the workspace row. Contains "New Snippet", the flat snippet list with metadata per row, and active-row highlight. Togglable to an icon rail on desktop/tablet.
   - **Snippet details**: Right column. Shows a placeholder when no snippet is active; shows the editor zone (toolbar + Monaco) when a snippet is active.
 - **Console**: Bottom of the dashboard shell, full width beneath the workspace row. Includes:
-  - A **persistent strip** (fixed height when collapsed) acting as the console header — label, chevron indicating expand/collapse state, and Clear when expanded and entries exist. The whole strip is clickable to toggle.
+  - A **persistent strip** (fixed height when collapsed) acting as the console header — label, chevron indicating expand/collapse state, and Clear when expanded and entries exist. The whole strip is clickable to toggle. No separate console control in shell chrome.
   - An **expandable log area** beneath the strip when expanded.
 - **Console in empty shell**: Visible (at minimum the collapsed strip); shows terminal-styled placeholder or prior session output.
 
-### Layout (tablet and mobile — direction set; implementation in responsive slice)
+### Layout (tablet and mobile — decided; implementation in responsive slice)
 
-- Desktop-first; breakpoint behavior ships in the responsive slice (issue #05), after core workflow works.
-- **Interaction model (target)**: Panel toggles — user can collapse/expand the snippet list (to icon rail) and expand/collapse the console; same mental model on narrow widths and constrained embeds (not a separate floating UX).
-- **Snippet list (target)**: Expanded by default on desktop; icon rail on tablet and mobile.
+- Desktop-first; breakpoint behavior ships in the responsive slice (issue #05), after core workflow works. See [ADR 0005](../../docs/adr/0005-shell-chrome-and-mobile-stack.md).
+- **Tablet**: Same side-by-side workspace model as desktop for now (list expanded by default; icon rail toggle allowed). Revisit later if needed.
+- **Mobile interaction model**: Exclusive stack — snippet list **or** snippet details, not an icon rail. Selecting a row shows details; back clears the active snippet and returns to the list.
+- **Mobile create / rename**: Create does not activate the snippet. List owns rename (auto after create; explicit row edit control for later renames). User stays on the list after create-time rename; tap opens details. Desktop keeps double-click rename and create-then-focus-editor behavior.
 - **Console defaults**: Collapsed (strip only) on all viewports.
 - **Console auto-open on run**: Expand when a run starts so “Running…” and the result are visible; if the user collapses mid-run, leave collapsed.
 - **Console resize**: Deferred; expanded height uses fixed bounds in v1.
-- **Not a goal**: Raycast-style floating launcher or “float mode” on mobile/tablet.
+- **Not a goal**: Raycast-style floating launcher, mobile icon rail, or chrome console toggle.
 
 ### Snippet and session state
 
@@ -121,7 +123,7 @@ The product follows an Obsidian-like mental model — the snippet list is the in
 - **Cross-tab sync**: other tabs are notified (e.g. `storage` events) and quietly replace their in-memory list (whole-list last-write-wins). If the active id is missing after adopt, deselect; if still present, adopt the winning fields.
 - **Not persisted / not cross-tab**: active snippet id, console entries, panel expand/collapse, run lock, startup overlay.
 - A **snippet** has an id, a user-visible name, code text, a language label (`JavaScript` in v1), and a `lastEditedAt` timestamp stored with the snippet.
-- The **active snippet** is tracked by id in the current tab only; selecting a list row or creating a snippet updates it. Hydration after reload or a new tab restores the list with **no** active snippet.
+- The **active snippet** is tracked by id in the current tab only; selecting a list row updates it. On desktop/tablet, creating a snippet also activates it; on mobile, create leaves selection clear until the user taps a row. Hydration after reload or a new tab restores the list with **no** active snippet.
 - Edits in Monaco bind directly to the active snippet's `code` and update `lastEditedAt` (debounced updates are acceptable).
 - **Delete** removes the snippet from the list (and storage). If it was active, select another snippet or show the details placeholder. Confirm when `code` is non-empty; delete silently when empty. Deleting a snippet does **not** remove its console entries — historical log lines keep the snippet name as it was at run time. No in-app bulk “wipe all snippets” in v1.
 - Default naming: `untitled-1`, `untitled-2`, etc.
@@ -131,8 +133,9 @@ The product follows an Obsidian-like mental model — the snippet list is the in
 
 - On first visit (empty browser store): no snippets exist.
 - Snippet list shows "New Snippet" CTA (and optionally muted empty-list text).
-- Snippet details shows a placeholder ("Create or select a snippet to start"); Monaco is not mounted until a snippet is active.
-- After reload or a new tab with a non-empty stored list: list is hydrated, **no** snippet is active, details still shows the placeholder until the user selects or creates one.
+- On desktop/tablet, snippet details shows a placeholder ("Create or select a snippet to start"); Monaco is not mounted until a snippet is active.
+- On mobile, the list fills the workspace when nothing is active; there is no side-by-side details placeholder.
+- After reload or a new tab with a non-empty stored list: list is hydrated, **no** snippet is active; desktop/tablet details show the placeholder until the user selects a snippet; mobile stays on the list until select.
 - Console remains mounted at the shell bottom (strip visible; log expandable); console starts empty each tab session.
 - Run is disabled until an active snippet with non-empty code exists.
 
@@ -168,7 +171,7 @@ The API does not execute code; it simulates network latency and random outcomes.
 
 ### Theming
 
-- Use Nuxt UI `colorMode` with system preference. No dedicated dark-theme polish pass in v1.
+- Persisted **theme preference** (first visit snapshots system appearance). In-app toggle in **shell chrome**. No dedicated dark-theme polish pass in v1.
 
 ### Incremental delivery
 
@@ -248,7 +251,7 @@ This is the highest seam that covers challenge-mandated server behavior determin
 
 ### Domain glossary
 
-See `CONTEXT.md` at repo root for canonical terminology (snippet, snippet list, snippet details, run, console, mock API, run lock, empty state, etc.).
+See `CONTEXT.md` at repo root for canonical terminology (snippet, snippet list, snippet details, shell chrome, run, console, mock API, run lock, empty state, etc.).
 
 ### Challenge source
 

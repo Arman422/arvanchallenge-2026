@@ -1,6 +1,6 @@
 # Code Snippet Dashboard
 
-A browser-based workspace where users write language-tagged snippets, run them against a mock execution API, and read results in a session console. The snippet list is kept in the browser and shared across tabs of the same origin; the console and selection are not. Navigation follows an Obsidian-like model: a scannable snippet list on the left, snippet details on the right, and shared run output along the bottom.
+A browser-based workspace where users write language-tagged snippets, run them against a mock execution API, and read results in a session console. The snippet list is kept in the browser and shared across tabs of the same origin; the console and selection are not. On desktop and tablet, navigation is Obsidian-like: snippet list beside snippet details, shared run output along the bottom, with shell chrome above. On mobile, the list and details are exclusive — one surface at a time.
 
 ## Language
 
@@ -21,7 +21,7 @@ Scanning labels shown on each snippet list row — snippet language and a last-e
 _Avoid_: Dirty indicator, unsaved badge, save status, created timestamp
 
 **Active snippet**:
-The snippet currently selected in the snippet list, shown in the editor, and targeted when the user runs code. Tab-local — not written to browser storage; a new or reloaded tab starts with none selected.
+The snippet shown in snippet details and targeted when the user runs code. Tab-local — not written to browser storage; a new or reloaded tab starts with none selected. On mobile, a non-null active snippet means details are showing; clearing it returns to the snippet list.
 _Avoid_: Open file, current tab, open snippet
 
 **Run**:
@@ -41,19 +41,23 @@ A server-side endpoint that validates the payload, waits 2–3 seconds, then ret
 _Avoid_: Runner, sandbox, executor
 
 **Dashboard shell**:
-The root workspace surface — workspace row on top, console on bottom. Intended to fill its host (full page today; embeddable in a constrained box later).
+The root surface — shell chrome on top, workspace beneath it, console at the bottom. Intended to fill its host (full page today; embeddable in a constrained box later).
 _Avoid_: App layout, page wrapper, floating panel
 
+**Shell chrome**:
+The top strip of the dashboard shell for global actions — theme toggle on all viewports, product title on desktop, and a back control on mobile when snippet details are showing. Not part of the snippet list or editor zone.
+_Avoid_: App header, nav bar, marketing header, toolbar
+
 **Workspace**:
-The top region of the dashboard shell — snippet list panel and snippet details side by side, above the console.
+The region of the dashboard shell between shell chrome and console. On desktop and tablet: snippet list panel and snippet details side by side. On mobile: either the snippet list or snippet details, not both.
 _Avoid_: Main area, content pane, working area
 
 **Snippet list panel**:
-The left-hand column of the workspace — a full-height flat list for creating, selecting, renaming snippets, and displaying snippet metadata. No file explorer.
+The list surface of the workspace — creating, selecting, and renaming snippets, and displaying snippet metadata. On desktop and tablet it is the left-hand column (optionally collapsible to an icon rail). On mobile it is the full workspace when no snippet is active.
 _Avoid_: Sidebar, file tree, navigator
 
 **Snippet details**:
-The right-hand column of the workspace — a placeholder when no snippet is active, or the editor zone when a snippet is active.
+The editing surface of the workspace — a placeholder when no snippet is active (desktop/tablet), or the editor zone when a snippet is active. On mobile it replaces the snippet list panel while a snippet is active.
 _Avoid_: Working area, main panel, detail pane
 
 **Editor zone**:
@@ -61,7 +65,7 @@ The toolbar and code editor within snippet details for the active snippet.
 _Avoid_: Editor pane, code panel, tab bar
 
 **Rename snippet**:
-Changing a snippet's display name via inline edit in the snippet list. Starts automatically after creating a snippet (default name selected), or by double-clicking an existing name. Escape or confirming an empty name keeps the previous name. Enter or Escape moves focus to the editor; blur does not.
+Changing a snippet's display name via inline edit in the snippet list. Starts automatically after creating a snippet (default name selected), by double-clicking an existing name on pointer devices, or via an explicit row edit control on mobile. Escape or confirming an empty name keeps the previous name. On desktop and tablet, Enter or Escape moves focus to the editor; on mobile after create-time rename the user stays on the list. Blur does not move focus to the editor.
 _Avoid_: File rename, title edit, retitle
 
 **Delete snippet**:
@@ -73,9 +77,9 @@ While a run request is in flight, action buttons are disabled with spinners and 
 _Avoid_: Loading state, busy flag
 
 **Empty state**:
-No snippets in the browser store (first visit or after every snippet was deleted): the list shows a "+ New Snippet" call-to-action, snippet details shows a placeholder, and the console remains available at the shell bottom. A non-empty hydrated list with no active snippet still shows the details placeholder until the user selects or creates one.
+No snippets in the browser store (first visit or after every snippet was deleted): the list shows a "+ New Snippet" call-to-action; on desktop and tablet snippet details shows a placeholder; on mobile the list fills the workspace. The console remains available at the shell bottom. A non-empty hydrated list with no active snippet still shows the details placeholder on desktop/tablet until the user selects a snippet; on mobile the list remains showing until the user selects one.
 _Avoid_: Welcome screen, onboarding
 
 **Theme preference**:
-The user's chosen light or dark appearance for the dashboard shell. On first visit it is taken from the system appearance and then kept for later visits until the user changes it. No in-app theme control is exposed yet.
-_Avoid_: Color mode, system theme (after first visit it no longer tracks the OS), app header theme switch
+The user's chosen light or dark appearance for the dashboard shell. On first visit it is taken from the system appearance and then kept for later visits until the user changes it. Changed in-app via the theme toggle in shell chrome.
+_Avoid_: Color mode, system theme (after first visit it no longer tracks the OS)

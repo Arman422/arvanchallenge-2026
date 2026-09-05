@@ -12,7 +12,7 @@ Each console entry records a snapshot of the snippet name at run time (`[HH:MM:S
 
 ## Consequences
 
-- Shell layout is three regions: workspace row (list + snippet details) and console.
+- Shell layout is chrome (see ADR 0005), workspace row (list + snippet details on desktop/tablet; exclusive on mobile), and console.
 - Snippet list panel height is the workspace row, not the full viewport.
 - Console remains visible (at least as a collapsed strip) during the empty state.
 - Console resize remains deferred.

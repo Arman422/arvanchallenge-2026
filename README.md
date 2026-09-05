@@ -73,12 +73,15 @@ Each request waits a random **2–3 seconds** before responding so loading UX ca
 
 ## Layout and responsive behavior
 
-The **dashboard shell** splits into two regions:
+The **dashboard shell** has three regions:
 
-- **Workspace** (top) — snippet list panel (left) and snippet details (right)
-- **Output Console** (bottom) — full-width session log spanning beneath both columns
+- **Shell chrome** (top) — theme toggle on all viewports; product title on desktop; back control on mobile when snippet details are showing
+- **Workspace** — snippet list and snippet details (side by side on desktop/tablet; exclusive list **or** details on mobile)
+- **Output Console** (bottom) — full-width session log spanning beneath the workspace
 
-Snippet details shows a placeholder when nothing is selected, or the editor zone (toolbar + Monaco) when a snippet is active. The Output Console is session-scoped: one shared log for all runs in the current tab, with each entry tagged by snippet name (`[HH:MM:SS] snippetName › message`). Reloading or opening a new tab restores the snippet list from browser storage with **no** active snippet (details stays on the placeholder until you select or create one); the console starts empty again.
+On desktop and tablet, snippet details shows a placeholder when nothing is selected, or the editor zone (toolbar + Monaco) when a snippet is active. On mobile, the snippet list fills the workspace until a row is selected; back clears the selection and returns to the list. Creating a snippet on mobile does not open details — rename stays on the list; tap a row to edit. Mobile rename uses an explicit row edit control; desktop keeps double-click.
+
+The Output Console is session-scoped: one shared log for all runs in the current tab, with each entry tagged by snippet name (`[HH:MM:SS] snippetName › message`). Reloading or opening a new tab restores the snippet list from browser storage with **no** active snippet; the console starts empty again.
 
 Edits bind directly to snippets — no save button and no dirty indicators. Create, rename, and delete write through to storage immediately; code edits debounce (~300ms). Other tabs of the same origin quietly adopt the latest whole-list snapshot.
 
@@ -86,21 +89,21 @@ The Output Console starts **collapsed** (strip only). Running a snippet expands 
 
 ### Breakpoints and panel defaults
 
-| Viewport | Width | Snippet list default | Output Console default |
+| Viewport | Width | Workspace default | Output Console default |
 | --- | --- | --- | --- |
-| Desktop | ≥ 1024px (`lg`) | Expanded | Collapsed (strip only) |
-| Tablet | 768–1023px (`md`–`lg`) | Expanded | Collapsed (strip only) |
-| Mobile | < 768px (below `md`) | Icon rail (collapsed) | Collapsed (strip only) |
+| Desktop | ≥ 1024px (`lg`) | Side-by-side; list expanded | Collapsed (strip only) |
+| Tablet | 768–1023px (`md`–`lg`) | Side-by-side; list expanded (same as desktop for now) | Collapsed (strip only) |
+| Mobile | < 768px (below `md`) | Exclusive list or details (no icon rail) | Collapsed (strip only) |
 
-Breakpoints use Tailwind defaults via VueUse `useBreakpoints`. Panel defaults are applied on first load from the current viewport; expand/collapse persists for the session regardless of resize.
+Breakpoints use Tailwind defaults via VueUse `useBreakpoints`. Console expand/collapse persists for the session regardless of resize. See [ADR 0005](docs/adr/0005-shell-chrome-and-mobile-stack.md).
 
-### Snippet list toggle
+### Snippet list toggle (desktop / tablet)
 
-Collapse the snippet list to a narrow **icon rail** (48px) via the panel toggle in the list header. The rail shows a New Snippet button and one icon per snippet (with tooltip labels). Expand restores the full list with names and metadata. The same toggle behavior applies on desktop, tablet, and mobile.
+Collapse the snippet list to a narrow **icon rail** (48px) via the panel toggle in the list header. The rail shows a New Snippet button and one icon per snippet (with tooltip labels). Expand restores the full list with names and metadata. Mobile uses the exclusive list/details stack instead of a rail.
 
 ### Output Console toggle
 
-Expand/collapse via the persistent strip labeled **Output Console** at the bottom of the shell. Collapsed state shows the strip only; expanded state shows the log beneath it. The whole strip is clickable; Clear does not collapse the panel.
+Expand/collapse via the persistent strip labeled **Output Console** at the bottom of the shell. Collapsed state shows the strip only; expanded state shows the log beneath it. The whole strip is clickable; Clear does not collapse the panel. There is no separate console button in shell chrome.
 
 ## Project structure
 
@@ -115,4 +118,4 @@ server/
   utils/runMock.ts        # Validation, delay, random outcomes
 ```
 
-See `CONTEXT.md` for domain terminology and `docs/adr/` for layout and persistence decisions (including [ADR 0002](docs/adr/0002-browser-persisted-snippet-list.md) for the browser-persisted snippet list).
+See `CONTEXT.md` for domain terminology and `docs/adr/` for layout and persistence decisions (including [ADR 0002](docs/adr/0002-browser-persisted-snippet-list.md) for the browser-persisted snippet list and [ADR 0005](docs/adr/0005-shell-chrome-and-mobile-stack.md) for shell chrome and mobile navigation).
