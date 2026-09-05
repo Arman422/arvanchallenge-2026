@@ -1,8 +1,9 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { clearNuxtState } from '#app'
-import type { VueWrapper } from '@vue/test-utils'
+import { flushPromises, type VueWrapper } from '@vue/test-utils'
 import { useSnippetSession } from '~/composables/useSnippetSession'
+import { useRunSnippet } from '~/composables/useRunSnippet'
 import { __setViewportTierForTests } from '~/composables/useViewportTier'
 import { SNIPPET_LANGUAGES } from '~/utils/snippet'
 import EditorZone from './EditorZone.vue'
@@ -102,6 +103,7 @@ describe('EditorZone toolbar', () => {
     expect(identity.find('[data-testid="active-snippet-name"]').exists()).toBe(true)
     expect(identity.find('[data-testid="snippet-language-select"]').exists()).toBe(true)
     expect(actions.find('[data-testid="run-snippet-button"]').exists()).toBe(true)
+    expect(actions.find('[data-testid="copy-code-button"]').exists()).toBe(true)
     expect(actions.find('[data-testid="delete-snippet-button"]').exists()).toBe(true)
     // Identity min-width matches language sizing so the strip wraps instead of overlapping.
     expect((identity.element as HTMLElement).style.minWidth).toContain('ch')
@@ -161,5 +163,137 @@ describe('EditorZone toolbar', () => {
     const actions = wrapper!.get('[data-testid="editor-toolbar-actions"]')
     expect(actions.classes()).toContain('flex')
     expect(actions.classes()).not.toContain('flex-col')
+  })
+
+  it('orders actions as Run, Copy, Delete', async () => {
+    await mountWithActiveSnippet()
+
+    const actions = wrapper!.get('[data-testid="editor-toolbar-actions"]')
+    const testIds = [...actions.element.querySelectorAll('[data-testid]')].map(
+      el => el.getAttribute('data-testid')
+    )
+
+    expect(testIds).toEqual([
+      'run-snippet-button',
+      'copy-code-button',
+      'delete-snippet-button'
+    ])
+  })
+})
+
+describe('EditorZone copy code', () => {
+  let wrapper: VueWrapper | undefined
+  let writeText: ReturnType<typeof vi.fn>
+
+  beforeEach(() => {
+    clearNuxtState()
+    __setViewportTierForTests('desktop')
+    writeText = vi.fn().mockResolvedValue(undefined)
+    vi.stubGlobal('navigator', {
+      ...navigator,
+      clipboard: { writeText }
+    })
+  })
+
+  afterEach(() => {
+    wrapper?.unmount()
+    wrapper = undefined
+    clearNuxtState()
+    __setViewportTierForTests(null)
+    vi.unstubAllGlobals()
+    vi.useRealTimers()
+  })
+
+  async function mountWithCode(code: string) {
+    wrapper = await mountSuspended(EditorZone, {
+      global: {
+        stubs: {
+          CodeEditor: true,
+          ClientOnly: true
+        }
+      }
+    })
+    const session = useSnippetSession()
+    const created = session.createSnippet()
+    session.updateSnippetCode(created.id, code)
+    await nextTick()
+    return wrapper
+  }
+
+  it('disables Copy when the body is empty and when run lock is active', async () => {
+    await mountWithCode('')
+
+    const copy = wrapper!.get('[data-testid="copy-code-button"]')
+    expect(copy.attributes('disabled')).toBeDefined()
+    expect(copy.find('[class*="animate-spin"]').exists()).toBe(false)
+
+    const session = useSnippetSession()
+    session.updateSnippetCode(session.activeSnippet.value!.id, 'console.log(1)')
+    await nextTick()
+    expect(wrapper!.get('[data-testid="copy-code-button"]').attributes('disabled')).toBeUndefined()
+
+    useRunSnippet().isRunning.value = true
+    await nextTick()
+
+    const locked = wrapper!.get('[data-testid="copy-code-button"]')
+    expect(locked.attributes('disabled')).toBeDefined()
+    // Copy stays idle under run lock — no spinner.
+    expect(locked.find('[class*="animate-spin"]').exists()).toBe(false)
+  })
+
+  it('uses sm Copy with icon and label on desktop/tablet and icon-only on mobile', async () => {
+    await mountWithCode('x')
+
+    for (const tier of ['desktop', 'tablet'] as const) {
+      __setViewportTierForTests(tier)
+      await nextTick()
+
+      const copy = wrapper!.get('[data-testid="copy-code-button"]')
+      expect(copy.classes()).toContain('h-8')
+      expect(copy.text()).toContain('Copy')
+      expect(copy.find('[data-slot="label"]').exists()).toBe(true)
+    }
+
+    __setViewportTierForTests('mobile')
+    await nextTick()
+
+    const mobileCopy = wrapper!.get('[data-testid="copy-code-button"]')
+    expect(mobileCopy.classes()).toContain('size-8')
+    expect(mobileCopy.attributes('aria-label')).toBe('Copy')
+    expect(mobileCopy.find('[data-slot="label"]').exists()).toBe(false)
+  })
+
+  it('writes the active snippet code to the clipboard on click', async () => {
+    await mountWithCode('const answer = 42')
+
+    await wrapper!.get('[data-testid="copy-code-button"]').trigger('click')
+    await nextTick()
+
+    expect(writeText).toHaveBeenCalledWith('const answer = 42')
+  })
+
+  it('shows a temporary checkmark on success and error icon on clipboard failure', async () => {
+    vi.useFakeTimers()
+    await mountWithCode('ok')
+
+    await wrapper!.get('[data-testid="copy-code-button"]').trigger('click')
+    await flushPromises()
+
+    expect(wrapper!.get('[data-testid="copy-code-button"]').html()).toMatch(/i-lucide:check/)
+    expect(wrapper!.get('[data-testid="copy-code-button"]').text()).toContain('Copy')
+
+    await vi.advanceTimersByTimeAsync(1500)
+    await nextTick()
+    expect(wrapper!.get('[data-testid="copy-code-button"]').html()).toMatch(/i-lucide:copy\b/)
+
+    writeText.mockRejectedValueOnce(new Error('denied'))
+    await wrapper!.get('[data-testid="copy-code-button"]').trigger('click')
+    await flushPromises()
+
+    expect(wrapper!.get('[data-testid="copy-code-button"]').html()).toMatch(/i-lucide:circle-x/)
+
+    await vi.advanceTimersByTimeAsync(1500)
+    await nextTick()
+    expect(wrapper!.get('[data-testid="copy-code-button"]').html()).toMatch(/i-lucide:copy\b/)
   })
 })

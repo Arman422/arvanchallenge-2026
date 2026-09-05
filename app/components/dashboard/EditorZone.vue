@@ -53,6 +53,56 @@ const canRun = computed(() =>
   Boolean(activeSnippet.value && !isSnippetEmpty(activeSnippet.value.code) && !isRunning.value)
 )
 
+type CopyFeedback = 'idle' | 'success' | 'error'
+
+const copyFeedback = ref<CopyFeedback>('idle')
+let copyFeedbackTimer: ReturnType<typeof setTimeout> | undefined
+
+const copyIcon = computed(() => {
+  if (copyFeedback.value === 'success') {
+    return 'i-lucide-check'
+  }
+
+  if (copyFeedback.value === 'error') {
+    return 'i-lucide-circle-x'
+  }
+
+  return 'i-lucide-copy'
+})
+
+function clearCopyFeedbackTimer() {
+  if (copyFeedbackTimer !== undefined) {
+    clearTimeout(copyFeedbackTimer)
+    copyFeedbackTimer = undefined
+  }
+}
+
+function showCopyFeedback(next: Exclude<CopyFeedback, 'idle'>) {
+  clearCopyFeedbackTimer()
+  copyFeedback.value = next
+  copyFeedbackTimer = setTimeout(() => {
+    copyFeedback.value = 'idle'
+    copyFeedbackTimer = undefined
+  }, 1500)
+}
+
+async function copyActiveSnippetCode() {
+  if (!activeSnippet.value || !canRun.value) {
+    return
+  }
+
+  try {
+    await navigator.clipboard.writeText(activeSnippet.value.code)
+    showCopyFeedback('success')
+  } catch {
+    showCopyFeedback('error')
+  }
+}
+
+onBeforeUnmount(() => {
+  clearCopyFeedbackTimer()
+})
+
 function requestDelete() {
   if (!activeSnippet.value) {
     return
@@ -153,6 +203,19 @@ function confirmDelete() {
             :disabled="!canRun"
             data-testid="run-snippet-button"
             @click="runActiveSnippet"
+          />
+          <UButton
+            color="neutral"
+            variant="outline"
+            size="sm"
+            :square="compactActions"
+            :icon="copyIcon"
+            :label="compactActions ? undefined : 'Copy'"
+            :aria-label="compactActions ? 'Copy' : undefined"
+            :title="compactActions ? 'Copy' : undefined"
+            :disabled="!canRun"
+            data-testid="copy-code-button"
+            @click="copyActiveSnippetCode"
           />
           <UButton
             color="error"

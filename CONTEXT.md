@@ -72,6 +72,10 @@ _Avoid_: File rename, title edit, retitle
 Removing a snippet from the snippet list via an action in the editor zone when that snippet is active. Non-empty snippets require confirmation; empty snippets delete silently. Does not remove that snippet's console entries.
 _Avoid_: Close tab, dismiss, remove file
 
+**Copy code**:
+Writing the active snippet's code body to the clipboard from the editor-zone actions. Disabled when the body is empty or under run lock. Success and clipboard failure are shown as a brief icon change on the control (checkmark or error), not a toast.
+_Avoid_: Copy snippet, export, share, duplicate
+
 **Run lock**:
 While a run request is in flight, action buttons are disabled with spinners and the editor is read-only until the response arrives. Tab-local — not shared across tabs.
 _Avoid_: Loading state, busy flag
