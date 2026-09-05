@@ -97,6 +97,37 @@ describe('useSnippetSession persistence', () => {
     expect(afterEdit[0]!.code).toBe('hello')
   })
 
+  it('updates snippet language immediately and persists it', async () => {
+    const storage = createMemoryStorage({
+      [SNIPPET_LIST_STORAGE_KEY]: serializeSnippetList(sample)
+    })
+    const { useSnippetSession } = await import('./useSnippetSession')
+    const session = useSnippetSession({ storage })
+
+    session.selectSnippet('a1')
+    session.updateSnippetLanguage('a1', 'Python')
+
+    expect(session.snippets.value[0]!.language).toBe('Python')
+    const persisted = JSON.parse(storage.raw.get(SNIPPET_LIST_STORAGE_KEY)!) as Snippet[]
+    expect(persisted[0]!.language).toBe('Python')
+    expect(persisted[0]!.id).toBe('a1')
+  })
+
+  it('ignores unknown languages and leaves the snippet unchanged', async () => {
+    const storage = createMemoryStorage({
+      [SNIPPET_LIST_STORAGE_KEY]: serializeSnippetList(sample)
+    })
+    const { useSnippetSession } = await import('./useSnippetSession')
+    const session = useSnippetSession({ storage })
+
+    session.selectSnippet('a1')
+    // @ts-expect-error intentional invalid language
+    session.updateSnippetLanguage('a1', 'Brainfuck')
+
+    expect(session.snippets.value[0]!.language).toBe('JavaScript')
+    expect(JSON.parse(storage.raw.get(SNIPPET_LIST_STORAGE_KEY)!)).toEqual(sample)
+  })
+
   it('does not rewrite storage when selecting with no pending code edit', async () => {
     const storage = createMemoryStorage({
       [SNIPPET_LIST_STORAGE_KEY]: serializeSnippetList(sample)

@@ -105,7 +105,7 @@ export function formatLastEditedAt(timestamp: number, now = Date.now()): string 
   return new Date(timestamp).toLocaleString()
 }
 
-function isSnippetLanguage(value: unknown): value is SnippetLanguage {
+export function isSnippetLanguage(value: unknown): value is SnippetLanguage {
   return typeof value === 'string' && (SNIPPET_LANGUAGES as readonly string[]).includes(value)
 }
 

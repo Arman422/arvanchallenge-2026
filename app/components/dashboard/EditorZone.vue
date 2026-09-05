@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { isSnippetEmpty } from '~/utils/snippet'
+import type { SnippetLanguage } from '~/types/snippet'
+import { SNIPPET_LANGUAGES, isSnippetEmpty } from '~/utils/snippet'
 
-const { activeSnippet, updateSnippetCode, deleteSnippet } = useSnippetSession()
+const { activeSnippet, updateSnippetCode, updateSnippetLanguage, deleteSnippet } = useSnippetSession()
 const { isRunning, runActiveSnippet } = useRunSnippet()
 
 const isDeleteModalOpen = ref(false)
@@ -16,6 +17,19 @@ const codeModel = computed({
     updateSnippetCode(activeSnippet.value.id, code)
   }
 })
+
+const languageModel = computed({
+  get: () => activeSnippet.value?.language ?? 'JavaScript',
+  set: (language: SnippetLanguage) => {
+    if (!activeSnippet.value) {
+      return
+    }
+
+    updateSnippetLanguage(activeSnippet.value.id, language)
+  }
+})
+
+const languageItems = [...SNIPPET_LANGUAGES]
 
 const canRun = computed(() =>
   Boolean(activeSnippet.value && !isSnippetEmpty(activeSnippet.value.code) && !isRunning.value)
@@ -76,16 +90,22 @@ function confirmDelete() {
         class="flex shrink-0 items-center justify-between gap-3 border-b border-default px-4 py-3"
         data-testid="editor-toolbar"
       >
-        <div class="min-w-0">
+        <div class="min-w-0 flex-1">
           <h2
             class="truncate text-sm font-medium text-highlighted"
             data-testid="active-snippet-name"
           >
             {{ activeSnippet.name }}
           </h2>
-          <p class="text-xs text-muted">
-            {{ activeSnippet.language }}
-          </p>
+          <USelect
+            v-model="languageModel"
+            :items="languageItems"
+            size="xs"
+            class="mt-1 w-44"
+            :disabled="isRunning"
+            aria-label="Snippet language"
+            data-testid="snippet-language-select"
+          />
         </div>
 
         <div class="flex shrink-0 items-center gap-2">

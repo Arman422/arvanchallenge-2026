@@ -1,8 +1,9 @@
-import type { Snippet } from '~/types/snippet'
+import type { Snippet, SnippetLanguage } from '~/types/snippet'
 import {
   SNIPPET_LIST_STORAGE_KEY,
   adoptRemoteSnippetList,
   createSnippetListWriter,
+  isSnippetLanguage,
   nextUntitledName,
   parseSnippetList,
   readSnippetListFromStorage,
@@ -183,6 +184,21 @@ export function useSnippetSession(options: SnippetSessionOptions = {}) {
     }, LAST_EDITED_DEBOUNCE_MS)
   }
 
+  function updateSnippetLanguage(id: string, language: SnippetLanguage): boolean {
+    if (!isSnippetLanguage(language)) {
+      return false
+    }
+
+    const snippet = findSnippet(id)
+    if (!snippet) {
+      return false
+    }
+
+    snippet.language = language
+    persistImmediate()
+    return true
+  }
+
   function deleteSnippet(id: string) {
     const index = snippets.value.findIndex(snippet => snippet.id === id)
     if (index === -1) {
@@ -217,6 +233,7 @@ export function useSnippetSession(options: SnippetSessionOptions = {}) {
     selectSnippet,
     renameSnippet,
     updateSnippetCode,
+    updateSnippetLanguage,
     deleteSnippet
   }
 }
