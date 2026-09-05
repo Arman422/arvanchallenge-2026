@@ -8,6 +8,7 @@ import {
 } from '~/composables/useCodeEditorFocus'
 import { __setViewportTierForTests } from '~/composables/useViewportTier'
 import { useDashboardPanels } from '~/composables/useDashboardPanels'
+import { useSnippetSession } from '~/composables/useSnippetSession'
 import { SNIPPET_LIST_STORAGE_KEY } from '~/utils/snippet'
 import SnippetListPanel from './SnippetListPanel.vue'
 
@@ -169,5 +170,74 @@ describe('SnippetListPanel icon rail', () => {
     await nextTick()
     expect(wrapper!.get('[data-testid="new-snippet-bar"]').attributes('data-placement')).toBe('bottom')
     expect(wrapper!.find('[data-testid="new-snippet-button"]').exists()).toBe(true)
+  })
+})
+
+describe('SnippetListPanel mobile create and rename', () => {
+  let wrapper: VueWrapper | undefined
+  const focus = vi.fn()
+
+  beforeEach(() => {
+    clearNuxtState()
+    clearSnippetStorage()
+    __resetCodeEditorFocusForTests()
+    __setViewportTierForTests('mobile')
+    focus.mockReset()
+    useCodeEditorFocus().registerCodeEditorFocus(focus)
+  })
+
+  afterEach(() => {
+    wrapper?.unmount()
+    wrapper = undefined
+    clearNuxtState()
+    clearSnippetStorage()
+    __resetCodeEditorFocusForTests()
+    __setViewportTierForTests(null)
+  })
+
+  it('creates without activating and keeps rename on the list without focusing the editor', async () => {
+    wrapper = await mountSuspended(SnippetListPanel)
+    await wrapper.get('[data-testid="new-snippet-button"]').trigger('click')
+    await nextTick()
+    await nextTick()
+
+    const { activeSnippetId, snippets } = useSnippetSession()
+    expect(snippets.value).toHaveLength(1)
+    expect(activeSnippetId.value).toBeNull()
+    expect(wrapper!.find('[data-testid="snippet-rename-input"]').exists()).toBe(true)
+
+    await wrapper!.get('[data-testid="snippet-rename-input"]').trigger('keydown', { key: 'Enter' })
+    expect(focus).not.toHaveBeenCalled()
+    expect(activeSnippetId.value).toBeNull()
+    expect(wrapper!.find('[data-testid="snippet-list"]').exists()).toBe(true)
+  })
+
+  it('exposes an explicit edit control on mobile that starts rename', async () => {
+    wrapper = await mountSuspended(SnippetListPanel)
+    await wrapper.get('[data-testid="new-snippet-button"]').trigger('click')
+    await nextTick()
+    await nextTick()
+    await wrapper!.get('[data-testid="snippet-rename-input"]').trigger('keydown', { key: 'Enter' })
+    await nextTick()
+
+    expect(wrapper!.find('[data-testid="snippet-rename-input"]').exists()).toBe(false)
+    const edit = wrapper!.get('[data-testid="snippet-rename-button"]')
+    await edit.trigger('click')
+    await nextTick()
+    await nextTick()
+
+    expect(wrapper!.find('[data-testid="snippet-rename-input"]').exists()).toBe(true)
+  })
+
+  it('does not show the edit control on desktop', async () => {
+    __setViewportTierForTests('desktop')
+    wrapper = await mountSuspended(SnippetListPanel)
+    await wrapper.get('[data-testid="new-snippet-button"]').trigger('click')
+    await nextTick()
+    await nextTick()
+    await wrapper!.get('[data-testid="snippet-rename-input"]').trigger('keydown', { key: 'Enter' })
+    await nextTick()
+
+    expect(wrapper!.find('[data-testid="snippet-rename-button"]').exists()).toBe(false)
   })
 })

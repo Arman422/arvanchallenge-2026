@@ -87,4 +87,34 @@ describe('Shell mobile exclusive workspace', () => {
     expect(wrapper!.find('[data-testid="snippet-details"]').exists()).toBe(true)
     expect(wrapper!.find('[data-testid="shell-back-button"]').exists()).toBe(false)
   })
+
+  it('stays on the list after mobile create and rename until a row is tapped', async () => {
+    __setViewportTierForTests('mobile')
+    await mountShell()
+
+    await wrapper!.get('[data-testid="new-snippet-button"]').trigger('click')
+    await nextTick()
+    await nextTick()
+
+    const session = useSnippetSession()
+    expect(session.activeSnippetId.value).toBeNull()
+    expect(wrapper!.find('[data-testid="snippet-list-panel"]').exists()).toBe(true)
+    expect(wrapper!.find('[data-testid="snippet-details"]').exists()).toBe(false)
+    expect(wrapper!.find('[data-testid="snippet-rename-input"]').exists()).toBe(true)
+
+    await wrapper!.get('[data-testid="snippet-rename-input"]').setValue('hello')
+    await wrapper!.get('[data-testid="snippet-rename-input"]').trigger('keydown', { key: 'Enter' })
+    await nextTick()
+
+    expect(session.activeSnippetId.value).toBeNull()
+    expect(wrapper!.find('[data-testid="snippet-list-panel"]').exists()).toBe(true)
+    expect(wrapper!.find('[data-testid="snippet-details"]').exists()).toBe(false)
+
+    await wrapper!.get('[data-testid="snippet-list-item"] button').trigger('click')
+    await nextTick()
+
+    expect(session.activeSnippetId.value).toBeTruthy()
+    expect(wrapper!.find('[data-testid="snippet-details"]').exists()).toBe(true)
+    expect(wrapper!.find('[data-testid="snippet-list-panel"]').exists()).toBe(false)
+  })
 })

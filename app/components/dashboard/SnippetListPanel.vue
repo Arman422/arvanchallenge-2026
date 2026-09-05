@@ -25,7 +25,8 @@ const showIconRail = computed(
   () => tier.value !== 'mobile' && !snippetListExpanded.value
 )
 /** Mobile exclusive list: create sits in the thumb zone under the rows. */
-const createAtBottom = computed(() => tier.value === 'mobile')
+const isMobile = computed(() => tier.value === 'mobile')
+const createAtBottom = isMobile
 
 function setRenameInputRef(el: Element | null) {
   renameInputRef.value = el instanceof HTMLInputElement ? el : null
@@ -48,7 +49,7 @@ function handleCreateSnippet() {
     snippetListExpanded.value = true
   }
 
-  const snippet = createSnippet()
+  const snippet = createSnippet({ activate: !isMobile.value })
   void startRename(snippet)
 }
 
@@ -81,14 +82,16 @@ function cancelRename(options: { focusEditor?: boolean } = {}) {
 }
 
 function handleRenameKeydown(event: KeyboardEvent) {
+  const focusEditor = !isMobile.value
+
   if (event.key === 'Enter') {
     event.preventDefault()
-    commitRename({ focusEditor: true })
+    commitRename({ focusEditor })
   }
 
   if (event.key === 'Escape') {
     event.preventDefault()
-    cancelRename({ focusEditor: true })
+    cancelRename({ focusEditor })
   }
 }
 </script>
@@ -182,12 +185,12 @@ function handleRenameKeydown(event: KeyboardEvent) {
         <li
           v-for="snippet in snippets"
           :key="snippet.id"
-          class="rounded-md"
+          class="flex items-center gap-1 rounded-md"
           data-testid="snippet-list-item"
         >
           <button
             type="button"
-            class="flex w-full cursor-pointer flex-col gap-1 rounded-md px-3 py-2 text-start transition-colors"
+            class="flex min-w-0 flex-1 cursor-pointer flex-col gap-1 rounded-md px-3 py-2 text-start transition-colors"
             :class="snippet.id === activeSnippetId
               ? 'bg-primary/10 text-primary'
               : 'hover:bg-elevated'"
@@ -228,6 +231,18 @@ function handleRenameKeydown(event: KeyboardEvent) {
               </span>
             </div>
           </button>
+
+          <UButton
+            v-if="isMobile && editingSnippetId !== snippet.id"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            square
+            icon="i-lucide-pencil"
+            :aria-label="`Rename ${snippet.name}`"
+            data-testid="snippet-rename-button"
+            @click="startRename(snippet)"
+          />
         </li>
       </ul>
     </template>

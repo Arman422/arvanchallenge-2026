@@ -78,9 +78,10 @@ function toggleTheme() {
       <UButton
         color="neutral"
         variant="ghost"
-        size="sm"
+        size="md"
         square
-        icon="i-lucide-arrow-left"
+        icon="i-lucide-chevron-left"
+        :ui="{ leadingIcon: 'size-6' }"
         aria-label="Back to snippet list"
         title="Back to snippet list"
         data-testid="shell-back-button"

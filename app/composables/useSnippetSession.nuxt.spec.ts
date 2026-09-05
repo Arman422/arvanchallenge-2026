@@ -97,6 +97,24 @@ describe('useSnippetSession persistence', () => {
     expect(afterEdit[0]!.code).toBe('hello')
   })
 
+  it('persists a snippet without activating when activate is false', async () => {
+    const storage = createMemoryStorage({
+      [SNIPPET_LIST_STORAGE_KEY]: serializeSnippetList(sample)
+    })
+    const { useSnippetSession } = await import('./useSnippetSession')
+    const session = useSnippetSession({ storage })
+
+    session.selectSnippet('a1')
+    const created = session.createSnippet({ activate: false })
+
+    expect(created.name).toBe('snippet-2')
+    expect(session.snippets.value).toHaveLength(2)
+    expect(session.activeSnippetId.value).toBe('a1')
+    const persisted = JSON.parse(storage.raw.get(SNIPPET_LIST_STORAGE_KEY)!) as Snippet[]
+    expect(persisted).toHaveLength(2)
+    expect(persisted[1]!.id).toBe(created.id)
+  })
+
   it('updates snippet language immediately and persists it', async () => {
     const storage = createMemoryStorage({
       [SNIPPET_LIST_STORAGE_KEY]: serializeSnippetList(sample)
