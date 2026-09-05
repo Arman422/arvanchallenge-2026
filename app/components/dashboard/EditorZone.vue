@@ -87,7 +87,7 @@ function confirmDelete() {
       data-testid="editor-active-snippet"
     >
       <header
-        class="flex shrink-0 items-center justify-between gap-3 border-b border-default px-4 py-3"
+        class="flex shrink-0 items-center justify-between gap-3 border-b border-default dark:border-[#4c4c4c] px-4 py-3"
         data-testid="editor-toolbar"
       >
         <div class="min-w-0 flex-1">

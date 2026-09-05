@@ -36,12 +36,12 @@ export default defineAppConfig({
         {
           size: 'sm',
           square: true,
-          class: 'size-8 rounded-[8px] p-0'
+          class: 'size-8 rounded-[8px] p-0 justify-center gap-0'
         },
         {
           size: 'md',
           square: true,
-          class: 'size-10 rounded-[12px] p-0'
+          class: 'size-10 rounded-[12px] p-0 justify-center gap-0'
         },
         {
           color: 'primary',

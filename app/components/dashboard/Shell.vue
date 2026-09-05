@@ -36,11 +36,13 @@ onUnmounted(() => {
       />
     </div>
 
+    <DashboardShellChrome />
+
     <div
       class="flex min-h-0 flex-1"
       data-testid="dashboard-layout"
     >
-      <DashboardSnippetListPanel class="shrink-0 border-e border-default" />
+      <DashboardSnippetListPanel class="shrink-0 border-e border-default dark:border-[#4c4c4c]" />
       <DashboardWorkingArea class="min-w-0 flex-1" />
     </div>
 
