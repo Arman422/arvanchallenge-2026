@@ -91,7 +91,7 @@ function confirmDelete() {
         <div class="flex shrink-0 items-center gap-2">
           <UButton
             color="primary"
-            variant="soft"
+            variant="solid"
             icon="i-lucide-play"
             :loading="isRunning"
             label="Run"
@@ -101,7 +101,7 @@ function confirmDelete() {
           />
           <UButton
             color="error"
-            variant="soft"
+            variant="outline"
             icon="i-lucide-trash"
             label="Delete"
             :disabled="isRunning"

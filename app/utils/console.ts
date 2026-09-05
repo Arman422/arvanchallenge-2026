@@ -24,10 +24,10 @@ export function formatConsoleTimestamp(timestamp: number): string {
 export function consoleEntryClass(kind: ConsoleEntryKind): string {
   switch (kind) {
     case 'running':
-      return 'text-neutral-400'
+      return 'text-muted'
     case 'success':
-      return 'text-emerald-400'
+      return 'text-success'
     case 'error':
-      return 'text-red-400'
+      return 'text-error'
   }
 }

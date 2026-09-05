@@ -21,9 +21,9 @@ describe('formatConsoleAttribution', () => {
 })
 
 describe('consoleEntryClass', () => {
-  it('maps entry kinds to terminal colors', () => {
-    expect(consoleEntryClass('running')).toContain('neutral')
-    expect(consoleEntryClass('success')).toContain('emerald')
-    expect(consoleEntryClass('error')).toContain('red')
+  it('maps entry kinds to theme-aware semantic colors', () => {
+    expect(consoleEntryClass('running')).toBe('text-muted')
+    expect(consoleEntryClass('success')).toBe('text-success')
+    expect(consoleEntryClass('error')).toBe('text-error')
   })
 })

@@ -7,16 +7,16 @@ const { consoleVisible, toggleConsole } = useDashboardPanels()
 
 <template>
   <section
-    class="flex min-h-0 flex-col border-t border-default bg-neutral-950 font-mono text-sm text-neutral-400"
+    class="flex min-h-0 flex-col border-t border-default bg-elevated font-mono text-sm text-toned"
     :class="consoleVisible ? 'h-48' : ''"
     data-testid="console-panel"
   >
     <div
-      class="flex shrink-0 items-center justify-between border-b border-neutral-800"
+      class="flex shrink-0 items-center justify-between border-b border-default"
     >
       <button
         type="button"
-        class="flex min-w-0 flex-1 items-center gap-2 px-3 py-1.5 text-left transition-colors hover:bg-neutral-900"
+        class="flex min-w-0 flex-1 items-center gap-2 px-3 py-1.5 text-left transition-colors hover:bg-accented/50"
         :aria-expanded="consoleVisible"
         :aria-label="consoleVisible ? 'Collapse output console' : 'Expand output console'"
         :data-testid="consoleVisible ? 'console-hide-button' : 'console-show-button'"
@@ -24,9 +24,9 @@ const { consoleVisible, toggleConsole } = useDashboardPanels()
       >
         <UIcon
           :name="consoleVisible ? 'i-lucide-chevron-down' : 'i-lucide-chevron-up'"
-          class="size-3.5 text-neutral-500"
+          class="size-3.5 text-muted"
         />
-        <span class="text-xs text-neutral-500">Output Console</span>
+        <span class="text-xs text-muted">Output Console</span>
       </button>
 
       <UButton
@@ -47,7 +47,7 @@ const { consoleVisible, toggleConsole } = useDashboardPanels()
         class="flex min-h-0 flex-1 items-center justify-center p-4"
         data-testid="console-empty-state"
       >
-        <span class="text-xs text-neutral-600">
+        <span class="text-xs text-muted">
           Output will appear here
         </span>
       </div>
@@ -64,7 +64,7 @@ const { consoleVisible, toggleConsole } = useDashboardPanels()
           data-testid="console-entry"
         >
           <span
-            class="shrink-0 text-neutral-600"
+            class="shrink-0 text-muted"
             data-testid="console-entry-timestamp"
           >
             [{{ formatConsoleTimestamp(entry.timestamp) }}]

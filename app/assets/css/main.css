@@ -2,17 +2,29 @@
 @import "@nuxt/ui";
 
 @theme static {
-  --font-sans: 'Public Sans', sans-serif;
+  --font-sans: 'Inter', sans-serif;
 
-  --color-green-50: #EFFDF5;
-  --color-green-100: #D9FBE8;
-  --color-green-200: #B3F5D1;
-  --color-green-300: #75EDAE;
-  --color-green-400: #00DC82;
-  --color-green-500: #00C16A;
-  --color-green-600: #00A155;
-  --color-green-700: #007F45;
-  --color-green-800: #016538;
-  --color-green-900: #0A5331;
-  --color-green-950: #052E16;
+  /* Arvan / Sorkhab primary (teal) — 500 = light CTA #009595 */
+  --color-teal-50: #f3fcfc;
+  --color-teal-100: #e6f8f8;
+  --color-teal-200: #bfeeee;
+  --color-teal-300: #99e3e3;
+  --color-teal-400: #4dcfcf;
+  --color-teal-500: #009595;
+  --color-teal-600: #007070;
+  --color-teal-700: #005d5d;
+  --color-teal-800: #004a4a;
+  --color-teal-900: #003838;
+  --color-teal-950: #001616;
+}
+
+:root {
+  --ui-primary: var(--ui-color-primary-500);
+  /* Keep Nuxt default base radius. Button corners use fixed px below —
+     raising --ui-radius multiplies rounded-md/xl into pill shapes. */
+  --ui-radius: 0.25rem;
+}
+
+.dark {
+  --ui-primary: var(--ui-color-primary-600);
 }

@@ -12,6 +12,18 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  colorMode: {
+    preference: 'system',
+    fallback: 'light',
+    classSuffix: ''
+  },
+
+  fonts: {
+    families: [
+      { name: 'Inter', provider: 'google' }
+    ]
+  },
+
   routeRules: {
     '/': { prerender: true }
   },
