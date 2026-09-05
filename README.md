@@ -82,14 +82,14 @@ Snippet details shows a placeholder when nothing is selected, or the editor zone
 
 Edits bind directly to snippets — no save button and no dirty indicators. Create, rename, and delete write through to storage immediately; code edits debounce (~300ms). Other tabs of the same origin quietly adopt the latest whole-list snapshot.
 
-The Output Console does **not** auto-open when you run a snippet.
+The Output Console starts **collapsed** (strip only). Running a snippet expands it so the “Running…” entry and result are visible; if you collapse it mid-run, it stays collapsed.
 
 ### Breakpoints and panel defaults
 
 | Viewport | Width | Snippet list default | Output Console default |
 | --- | --- | --- | --- |
-| Desktop | ≥ 1024px (`lg`) | Expanded | Expanded |
-| Tablet | 768–1023px (`md`–`lg`) | Expanded | Expanded |
+| Desktop | ≥ 1024px (`lg`) | Expanded | Collapsed (strip only) |
+| Tablet | 768–1023px (`md`–`lg`) | Expanded | Collapsed (strip only) |
 | Mobile | < 768px (below `md`) | Icon rail (collapsed) | Collapsed (strip only) |
 
 Breakpoints use Tailwind defaults via VueUse `useBreakpoints`. Panel defaults are applied on first load from the current viewport; expand/collapse persists for the session regardless of resize.

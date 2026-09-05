@@ -53,6 +53,8 @@ The product follows an Obsidian-like mental model — the snippet list is the in
 27. As a developer, I want to expand and collapse the console via a persistent strip at the top of the console panel, so that I can reclaim vertical space without losing the affordance to open it again.
 28. As a developer, I want the console strip to use a chevron to indicate collapsibility and respond to clicking the whole strip, so that the toggle is easy to discover and use.
 29. As a developer, I want the console to remain visible (at least as a collapsed strip) even when no snippet is active, so that I can review prior session output from the empty state.
+29a. As a developer, I want the console to start collapsed on first load, so that the editor gets more vertical space until I need output.
+29b. As a developer, I want the console to expand when I run a snippet, so that I can see “Running…” and the result without opening it manually.
 30. As a developer, I want the mock API to reject empty or malformed code payloads with a client-visible error, so that validation is demonstrable.
 31. As a reviewer, I want the mock API to wait 2–3 seconds before responding, so that loading UX can be evaluated.
 32. As a reviewer, I want the mock API to return success roughly 80% of the time, so that happy-path handling can be evaluated.
@@ -107,8 +109,8 @@ The product follows an Obsidian-like mental model — the snippet list is the in
 - Desktop-first; breakpoint behavior ships in the responsive slice (issue #05), after core workflow works.
 - **Interaction model (target)**: Panel toggles — user can collapse/expand the snippet list (to icon rail) and expand/collapse the console; same mental model on narrow widths and constrained embeds (not a separate floating UX).
 - **Snippet list (target)**: Expanded by default on desktop; icon rail on tablet and mobile.
-- **Console defaults (target)**: Expanded on desktop and tablet; collapsed (strip only) on mobile.
-- **Console auto-open on run**: Deferred; v1 run flow does not force the console open.
+- **Console defaults**: Collapsed (strip only) on all viewports.
+- **Console auto-open on run**: Expand when a run starts so “Running…” and the result are visible; if the user collapses mid-run, leave collapsed.
 - **Console resize**: Deferred; expanded height uses fixed bounds in v1.
 - **Not a goal**: Raycast-style floating launcher or “float mode” on mobile/tablet.
 
@@ -143,7 +145,7 @@ The product follows an Obsidian-like mental model — the snippet list is the in
 
 - **Session-scoped**: One append-only log for the entire session, shared across all snippets.
 - **Attribution**: Each entry stores a snapshot of the snippet id and name at run time. Display format: `[HH:MM:SS] snippetName › message` (e.g. `[14:32:01] untitled-1 › Hello World`). Renaming or deleting a snippet does not rewrite historical entries.
-- **Strip toggle**: No console toggle in the editor zone toolbar. Expand/collapse is controlled only via the console strip. Chevron reflects state (up when collapsed, down when expanded). The whole strip is the click target; Clear uses a separate control that does not toggle collapse.
+- **Strip toggle**: No console toggle in the editor zone toolbar. Expand/collapse is controlled only via the console strip (and expand-on-run). Chevron reflects state (up when collapsed, down when expanded). The whole strip is the click target; Clear uses a separate control that does not toggle collapse.
 - **Clear**: Resets the entire session log.
 - Terminal-like visual styling (dark background, monospace font).
 
@@ -218,7 +220,6 @@ This is the highest seam that covers challenge-mandated server behavior determin
 - Dedicated dark-theme design pass.
 - Skeleton loading screen (possible future replacement for full-screen loader).
 - Git commits made by the agent without explicit developer request.
-- Console auto-open on run.
 - Console resize by drag.
 - Unread/output indicators on the console strip when collapsed.
 - Per-snippet console filtering.
@@ -229,7 +230,6 @@ This is the highest seam that covers challenge-mandated server behavior determin
 
 | Topic | Status |
 |-------|--------|
-| Console auto-open on run | Deferred (not in v1 run flow) |
 | Console resize (drag handle) | Deferred; fixed expanded height in v1 |
 | Unread indicator on collapsed console strip | Deferred |
 | Per-snippet console filter | Deferred |
@@ -242,6 +242,7 @@ This is the highest seam that covers challenge-mandated server behavior determin
 |---|---|
 | Console at bottom of working area only (not beneath snippet list) | Full-width console at bottom of dashboard shell |
 | Console toggle in editor zone toolbar | Console strip as sole expand/collapse control |
+| Console expanded by default on desktop/tablet; auto-open on run deferred | Collapsed by default on all viewports; expand when a run starts |
 | Term "working area" for the right column | **Snippet details** (see `CONTEXT.md`) |
 | Snippet list session-only / no localStorage | Browser-persisted snippet list with cross-tab write-through (ADR 0002) |
 

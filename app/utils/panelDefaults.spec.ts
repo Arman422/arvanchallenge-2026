@@ -34,12 +34,9 @@ describe('getDefaultSnippetListExpanded', () => {
 })
 
 describe('getDefaultConsoleVisible', () => {
-  it('expands on desktop and tablet', () => {
-    expect(getDefaultConsoleVisible('desktop')).toBe(true)
-    expect(getDefaultConsoleVisible('tablet')).toBe(true)
-  })
-
-  it('collapses to strip on mobile', () => {
+  it('collapses to strip on all viewport tiers', () => {
+    expect(getDefaultConsoleVisible('desktop')).toBe(false)
+    expect(getDefaultConsoleVisible('tablet')).toBe(false)
     expect(getDefaultConsoleVisible('mobile')).toBe(false)
   })
 })

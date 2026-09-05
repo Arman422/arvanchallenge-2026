@@ -22,6 +22,6 @@ export function getDefaultSnippetListExpanded(tier: ViewportTier): boolean {
   return tier !== 'mobile'
 }
 
-export function getDefaultConsoleVisible(tier: ViewportTier): boolean {
-  return tier !== 'mobile'
+export function getDefaultConsoleVisible(_tier: ViewportTier): boolean {
+  return false
 }

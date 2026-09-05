@@ -23,6 +23,7 @@ export function useRunSnippet() {
   const isRunning = useState('snippet-run-lock', () => false)
   const { activeSnippet } = useSnippetSession()
   const { appendRunning, updateEntry } = useConsoleLog()
+  const { consoleVisible } = useDashboardPanels()
 
   async function runActiveSnippet() {
     const snippet = activeSnippet.value
@@ -32,6 +33,7 @@ export function useRunSnippet() {
     }
 
     isRunning.value = true
+    consoleVisible.value = true
     const entryId = appendRunning({ id: snippet.id, name: snippet.name })
 
     try {

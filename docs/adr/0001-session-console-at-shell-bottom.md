@@ -15,4 +15,5 @@ Each console entry records a snapshot of the snippet name at run time (`[HH:MM:S
 - Shell layout is three regions: workspace row (list + snippet details) and console.
 - Snippet list panel height is the workspace row, not the full viewport.
 - Console remains visible (at least as a collapsed strip) during the empty state.
-- Console resize and auto-open on run remain deferred.
+- Console resize remains deferred.
+- Running a snippet expands the console if it was collapsed (mid-run collapse is left as-is).
