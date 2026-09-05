@@ -28,8 +28,8 @@ describe('getDefaultSnippetListExpanded', () => {
     expect(getDefaultSnippetListExpanded('tablet')).toBe(true)
   })
 
-  it('collapses to icon rail on mobile', () => {
-    expect(getDefaultSnippetListExpanded('mobile')).toBe(false)
+  it('expands on mobile (exclusive stack — no icon rail default)', () => {
+    expect(getDefaultSnippetListExpanded('mobile')).toBe(true)
   })
 })
 

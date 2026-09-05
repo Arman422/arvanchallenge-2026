@@ -9,17 +9,19 @@ const tierOverride = ref<ViewportTier | null>(null)
 
 export function useViewportTier() {
   const breakpoints = useBreakpoints(breakpointsTailwind, { ssrWidth: SSR_DESKTOP_WIDTH })
+  const isDesktop = breakpoints.greaterOrEqual('lg')
+  const isTabletOrUp = breakpoints.greaterOrEqual('md')
 
   const tier = computed<ViewportTier>(() => {
     if (tierOverride.value !== null) {
       return tierOverride.value
     }
 
-    if (breakpoints.isGreaterOrEqual('lg')) {
+    if (isDesktop.value) {
       return 'desktop'
     }
 
-    if (breakpoints.isGreaterOrEqual('md')) {
+    if (isTabletOrUp.value) {
       return 'tablet'
     }
 

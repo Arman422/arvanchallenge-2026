@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
 import { __setViewportTierForTests } from '~/composables/useViewportTier'
+import { useDashboardPanels } from '~/composables/useDashboardPanels'
 import ShellChrome from './ShellChrome.vue'
 
 describe('ShellChrome', () => {
@@ -44,20 +45,41 @@ describe('ShellChrome', () => {
     expect(colorMode.preference).toBe('light')
   })
 
-  it('shows the product title on desktop and centered on mobile', async () => {
+  it('centers the product title on desktop, tablet, and mobile', async () => {
     await mountChrome()
     const desktopTitle = wrapper!.get('[data-testid="shell-product-title"]')
     expect(desktopTitle.text()).toBe('Snippet Manager')
-    expect(desktopTitle.classes()).not.toContain('text-center')
+    expect(desktopTitle.classes()).toContain('text-center')
 
     __setViewportTierForTests('tablet')
     await nextTick()
-    expect(wrapper!.find('[data-testid="shell-product-title"]').exists()).toBe(false)
+    const tabletTitle = wrapper!.get('[data-testid="shell-product-title"]')
+    expect(tabletTitle.text()).toBe('Snippet Manager')
+    expect(tabletTitle.classes()).toContain('text-center')
 
     __setViewportTierForTests('mobile')
     await nextTick()
     const mobileTitle = wrapper!.get('[data-testid="shell-product-title"]')
     expect(mobileTitle.text()).toBe('Snippet Manager')
     expect(mobileTitle.classes()).toContain('text-center')
+  })
+
+  it('toggles the snippet list on desktop and tablet, and hides the control on mobile', async () => {
+    await mountChrome()
+    const panels = useDashboardPanels()
+
+    expect(wrapper!.find('[data-testid="snippet-list-toggle"]').exists()).toBe(true)
+    expect(panels.snippetListExpanded.value).toBe(true)
+
+    await wrapper!.get('[data-testid="snippet-list-toggle"]').trigger('click')
+    expect(panels.snippetListExpanded.value).toBe(false)
+
+    __setViewportTierForTests('tablet')
+    await nextTick()
+    expect(wrapper!.find('[data-testid="snippet-list-toggle"]').exists()).toBe(true)
+
+    __setViewportTierForTests('mobile')
+    await nextTick()
+    expect(wrapper!.find('[data-testid="snippet-list-toggle"]').exists()).toBe(false)
   })
 })

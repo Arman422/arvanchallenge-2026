@@ -96,9 +96,9 @@ The product follows an Obsidian-like mental model — the snippet list is the in
 
 ### Layout (desktop — decided)
 
-- **Shell chrome**: Top strip of the dashboard shell — theme toggle; product title on desktop. See [ADR 0005](../../docs/adr/0005-shell-chrome-and-mobile-stack.md).
+- **Shell chrome**: Top strip of the dashboard shell — theme toggle; centered product title; snippet-list expand/collapse on desktop/tablet. See [ADR 0005](../../docs/adr/0005-shell-chrome-and-mobile-stack.md).
 - **Workspace row**:
-  - **Snippet list panel**: Left column, full height of the workspace row. Contains "New Snippet", the flat snippet list with metadata per row, and active-row highlight. Togglable to an icon rail on desktop/tablet.
+  - **Snippet list panel**: Left column, full height of the workspace row. Contains "New Snippet", the flat snippet list with metadata per row, and active-row highlight. Togglable to an icon rail on desktop/tablet via shell chrome.
   - **Snippet details**: Right column. Shows a placeholder when no snippet is active; shows the editor zone (toolbar + Monaco) when a snippet is active.
 - **Console**: Bottom of the dashboard shell, full width beneath the workspace row. Includes:
   - A **persistent strip** (fixed height when collapsed) acting as the console header — label, chevron indicating expand/collapse state, and Clear when expanded and entries exist. The whole strip is clickable to toggle. No separate console control in shell chrome.

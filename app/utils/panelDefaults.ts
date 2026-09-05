@@ -18,8 +18,9 @@ export function getViewportTier(width: number): ViewportTier {
   return 'mobile'
 }
 
-export function getDefaultSnippetListExpanded(tier: ViewportTier): boolean {
-  return tier !== 'mobile'
+export function getDefaultSnippetListExpanded(_tier: ViewportTier): boolean {
+  // Desktop/tablet start expanded; mobile uses exclusive stack (not icon rail).
+  return true
 }
 
 export function getDefaultConsoleVisible(_tier: ViewportTier): boolean {

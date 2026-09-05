@@ -6,7 +6,14 @@ import {
   __resetCodeEditorFocusForTests,
   useCodeEditorFocus
 } from '~/composables/useCodeEditorFocus'
+import { __setViewportTierForTests } from '~/composables/useViewportTier'
+import { useDashboardPanels } from '~/composables/useDashboardPanels'
+import { SNIPPET_LIST_STORAGE_KEY } from '~/utils/snippet'
 import SnippetListPanel from './SnippetListPanel.vue'
+
+function clearSnippetStorage() {
+  localStorage.removeItem(SNIPPET_LIST_STORAGE_KEY)
+}
 
 describe('SnippetListPanel rename-on-create', () => {
   let wrapper: VueWrapper | undefined
@@ -14,7 +21,9 @@ describe('SnippetListPanel rename-on-create', () => {
 
   beforeEach(() => {
     clearNuxtState()
+    clearSnippetStorage()
     __resetCodeEditorFocusForTests()
+    __setViewportTierForTests('desktop')
     focus.mockReset()
     useCodeEditorFocus().registerCodeEditorFocus(focus)
   })
@@ -24,6 +33,7 @@ describe('SnippetListPanel rename-on-create', () => {
     wrapper = undefined
     clearNuxtState()
     __resetCodeEditorFocusForTests()
+    __setViewportTierForTests(null)
   })
 
   async function createAndOpenRename() {
@@ -61,5 +71,93 @@ describe('SnippetListPanel rename-on-create', () => {
     await nextTick()
     await wrapper!.get('[data-testid="snippet-rename-input"]').trigger('blur')
     expect(focus).not.toHaveBeenCalled()
+  })
+})
+
+describe('SnippetListPanel icon rail', () => {
+  let wrapper: VueWrapper | undefined
+
+  beforeEach(() => {
+    clearNuxtState()
+    clearSnippetStorage()
+    __setViewportTierForTests('desktop')
+  })
+
+  afterEach(() => {
+    wrapper?.unmount()
+    wrapper = undefined
+    clearNuxtState()
+    clearSnippetStorage()
+    __setViewportTierForTests(null)
+  })
+
+  async function mountPanel() {
+    wrapper = await mountSuspended(SnippetListPanel)
+    return wrapper
+  }
+
+  it('starts expanded on desktop and tablet', async () => {
+    await mountPanel()
+
+    expect(wrapper!.find('[data-testid="snippet-list-panel"]').attributes('data-rail')).toBeUndefined()
+    expect(wrapper!.find('[data-testid="snippet-list-toggle"]').exists()).toBe(false)
+
+    __setViewportTierForTests('tablet')
+    await nextTick()
+    expect(wrapper!.find('[data-testid="snippet-list-panel"]').attributes('data-rail')).toBeUndefined()
+  })
+
+  it('collapses to an icon rail that can create and select snippets', async () => {
+    await mountPanel()
+    const panels = useDashboardPanels()
+
+    await wrapper!.get('[data-testid="new-snippet-button"]').trigger('click')
+    await nextTick()
+    await nextTick()
+    await wrapper!.get('[data-testid="snippet-rename-input"]').trigger('keydown', { key: 'Enter' })
+    await nextTick()
+
+    panels.toggleSnippetList()
+    await nextTick()
+
+    const panel = wrapper!.get('[data-testid="snippet-list-panel"]')
+    expect(panel.attributes('data-rail')).toBe('true')
+    expect(wrapper!.find('[data-testid="snippet-list"]').exists()).toBe(false)
+    expect(wrapper!.find('[data-testid="snippet-list-rail"]').exists()).toBe(true)
+
+    const railItem = wrapper!.get('[data-testid="snippet-list-rail-item"]')
+    expect(railItem.attributes('aria-label')).toBe('snippet-1')
+
+    await wrapper!.get('[data-testid="new-snippet-button"]').trigger('click')
+    await nextTick()
+    await nextTick()
+
+    // Creating from the rail expands so rename can run.
+    expect(wrapper!.find('[data-testid="snippet-list-panel"]').attributes('data-rail')).toBeUndefined()
+    expect(wrapper!.find('[data-testid="snippet-rename-input"]').exists()).toBe(true)
+
+    await wrapper!.get('[data-testid="snippet-rename-input"]').trigger('keydown', { key: 'Enter' })
+    await nextTick()
+    panels.toggleSnippetList()
+    await nextTick()
+
+    const railItems = wrapper!.findAll('[data-testid="snippet-list-rail-item"]')
+    expect(railItems).toHaveLength(2)
+    await railItems[0]!.trigger('click')
+    await nextTick()
+
+    const { activeSnippetId } = useSnippetSession()
+    expect(activeSnippetId.value).toBeTruthy()
+  })
+
+  it('does not switch mobile layout to an icon rail', async () => {
+    __setViewportTierForTests('mobile')
+    const panels = useDashboardPanels()
+    panels.snippetListExpanded.value = false
+
+    await mountPanel()
+
+    expect(wrapper!.find('[data-testid="snippet-list-panel"]').attributes('data-rail')).toBeUndefined()
+    expect(wrapper!.find('[data-testid="snippet-list-rail"]').exists()).toBe(false)
   })
 })

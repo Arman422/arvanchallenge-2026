@@ -8,9 +8,16 @@ import {
 
 const { tier } = useViewportTier()
 const colorMode = useColorMode()
+const { snippetListExpanded, toggleSnippetList } = useDashboardPanels()
 
-const showProductTitle = computed(() => tier.value !== 'tablet')
-const isMobileTitle = computed(() => tier.value === 'mobile')
+const showListToggle = computed(() => tier.value !== 'mobile')
+const showIconRail = computed(
+  () => showListToggle.value && !snippetListExpanded.value
+)
+
+const listToggleLabel = computed(() =>
+  showIconRail.value ? 'Expand snippet list' : 'Collapse snippet list'
+)
 
 function currentThemePreference(): ThemePreference {
   if (!isSystemThemePreference(colorMode.preference)) {
@@ -42,12 +49,26 @@ function toggleTheme() {
     class="relative flex shrink-0 items-center gap-3 border-b border-default dark:border-[#4c4c4c] px-3 py-2"
     data-testid="shell-chrome"
   >
+    <div
+      v-if="showListToggle"
+      class="relative z-10 flex shrink-0 items-center"
+    >
+      <UButton
+        color="neutral"
+        variant="ghost"
+        size="sm"
+        square
+        :icon="showIconRail ? 'i-lucide-panel-left-open' : 'i-lucide-panel-left-close'"
+        :aria-label="listToggleLabel"
+        :aria-expanded="!showIconRail"
+        :title="listToggleLabel"
+        data-testid="snippet-list-toggle"
+        @click="toggleSnippetList"
+      />
+    </div>
+
     <h1
-      v-if="showProductTitle"
-      class="truncate text-sm font-medium text-highlighted"
-      :class="isMobileTitle
-        ? 'pointer-events-none absolute inset-x-0 text-center px-12'
-        : ''"
+      class="pointer-events-none absolute inset-0 z-0 flex items-center justify-center truncate px-12 text-center text-sm font-medium text-highlighted"
       data-testid="shell-product-title"
     >
       Snippet Manager

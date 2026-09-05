@@ -45,7 +45,7 @@ The root surface — shell chrome on top, workspace beneath it, console at the b
 _Avoid_: App layout, page wrapper, floating panel
 
 **Shell chrome**:
-The top strip of the dashboard shell for global actions — theme toggle on all viewports, product title on desktop, and a back control on mobile when snippet details are showing. Not part of the snippet list or editor zone.
+The top strip of the dashboard shell for global actions — theme toggle on all viewports; snippet-list expand/collapse on desktop/tablet; centered product title on all viewports; back control on mobile when snippet details are showing. Not part of the snippet list or editor zone.
 _Avoid_: App header, nav bar, marketing header, toolbar
 
 **Workspace**:

@@ -75,7 +75,7 @@ Each request waits a random **2–3 seconds** before responding so loading UX ca
 
 The **dashboard shell** has three regions:
 
-- **Shell chrome** (top) — theme toggle on all viewports; product title on desktop; back control on mobile when snippet details are showing
+- **Shell chrome** (top) — theme toggle on all viewports; snippet-list expand/collapse on desktop/tablet; centered product title on all viewports; back control on mobile when snippet details are showing
 - **Workspace** — snippet list and snippet details (side by side on desktop/tablet; exclusive list **or** details on mobile)
 - **Output Console** (bottom) — full-width session log spanning beneath the workspace
 
@@ -99,7 +99,7 @@ Breakpoints use Tailwind defaults via VueUse `useBreakpoints`. Console expand/co
 
 ### Snippet list toggle (desktop / tablet)
 
-Collapse the snippet list to a narrow **icon rail** (48px) via the panel toggle in the list header. The rail shows a New Snippet button and one icon per snippet (with tooltip labels). Expand restores the full list with names and metadata. Mobile uses the exclusive list/details stack instead of a rail.
+Collapse the snippet list to a narrow **icon rail** (48px) via the toggle in **shell chrome**. The rail shows a New Snippet button and one icon per snippet (with tooltip labels). Expand restores the full list with names and metadata. Mobile uses the exclusive list/details stack instead of a rail.
 
 ### Output Console toggle
 
