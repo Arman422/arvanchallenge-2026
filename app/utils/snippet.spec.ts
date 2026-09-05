@@ -4,6 +4,7 @@ import {
   SNIPPET_LIST_STORAGE_KEY,
   adoptRemoteSnippetList,
   createSnippetListWriter,
+  formatLastEditedAt,
   nextUntitledName,
   parseSnippetList,
   readSnippetListFromStorage,
@@ -46,6 +47,16 @@ describe('nextUntitledName', () => {
       { ...sampleSnippets[0]!, name: 'untitled-9' },
       { ...sampleSnippets[1]!, name: 'helper' }
     ])).toBe('snippet-1')
+  })
+})
+
+describe('formatLastEditedAt', () => {
+  const editedAt = 1_700_000_000_000
+
+  it('labels recent edits relative to the provided now', () => {
+    expect(formatLastEditedAt(editedAt, editedAt + 30_000)).toBe('Just now')
+    expect(formatLastEditedAt(editedAt, editedAt + 5 * 60_000)).toBe('5 min ago')
+    expect(formatLastEditedAt(editedAt, editedAt + 3 * 60 * 60_000)).toBe('3 hr ago')
   })
 })
 

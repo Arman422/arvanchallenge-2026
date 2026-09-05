@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useTimestamp } from '@vueuse/core'
 import type { Snippet } from '~/types/snippet'
 import { formatLastEditedAt } from '~/utils/snippet'
 
@@ -10,6 +11,9 @@ const {
   renameSnippet
 } = useSnippetSession()
 const { focusCodeEditor } = useCodeEditorFocus()
+
+/** Advances so relative last-edited labels stay current while the panel is open. */
+const now = useTimestamp({ interval: 60_000 })
 
 const editingSnippetId = ref<string | null>(null)
 const editingName = ref('')
@@ -157,7 +161,7 @@ function handleRenameKeydown(event: KeyboardEvent) {
               {{ snippet.language }}
             </span>
             <span data-testid="snippet-list-item-last-edited">
-              {{ formatLastEditedAt(snippet.lastEditedAt) }}
+              {{ formatLastEditedAt(snippet.lastEditedAt, now) }}
             </span>
           </div>
         </button>

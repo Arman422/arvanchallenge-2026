@@ -13,8 +13,8 @@ A flat, ordered collection of all snippets — no folders, paths, or file explor
 _Avoid_: File tree, workspace, project, tab bar
 
 **Snippet metadata**:
-Scanning labels shown on each snippet list row — language (JavaScript in v1) and a last-edited timestamp stored with the snippet.
-_Avoid_: Dirty indicator, unsaved badge, save status
+Scanning labels shown on each snippet list row — language (JavaScript in v1) and a last-edited time shown as a relative age that stays current while the list is open.
+_Avoid_: Dirty indicator, unsaved badge, save status, created timestamp
 
 **Active snippet**:
 The snippet currently selected in the snippet list, shown in the editor, and targeted when the user runs code. Tab-local — not written to browser storage; a new or reloaded tab starts with none selected.
