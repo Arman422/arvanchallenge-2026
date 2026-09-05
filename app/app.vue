@@ -12,7 +12,7 @@ useHead({
 })
 
 const title = 'Code Snippet Dashboard'
-const description = 'Write, manage, and run JavaScript code snippets with a mock execution API.'
+const description = 'Write, manage, and run language-tagged code snippets with a mock execution API.'
 
 useSeoMeta({
   title,

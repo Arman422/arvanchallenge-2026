@@ -1,10 +1,12 @@
 # Code Snippet Dashboard
 
-A Nuxt dashboard for writing and managing JavaScript code snippets in the browser. Select snippets from a flat list, edit in Monaco, run against a mock execution API, and read timestamped output in a shared **Output Console** at the bottom of the page (the challenge’s “Output Console Simulation” requirement).
+A Nuxt dashboard for writing and managing language-tagged code snippets in the browser. Select snippets from a flat list, edit in Monaco (syntax highlighting for an allowlisted set of languages; new snippets default to JavaScript), run against a mock execution API, and read timestamped output in a shared **Output Console** at the bottom of the page (the challenge’s “Output Console Simulation” requirement).
 
 The **snippet list** is persisted in same-origin browser storage (`localStorage`) and stays in sync across tabs of the same browser profile. The active selection, Output Console history, panel expand/collapse, and run lock stay tab/session-local — they are not written to storage and are not shared across tabs.
 
 Built with [Nuxt](https://nuxt.com), [Nuxt UI](https://ui.nuxt.com), and [Monaco Editor](https://microsoft.github.io/monaco-editor/).
+
+The dashboard shell is sized to fill its host (`h-dvh` on the full page). It is intended to stay usable in a constrained box (~400×500) with panels toggled — a reviewer embed-size target for small viewports.
 
 ## Setup
 
@@ -53,7 +55,7 @@ We prefer colocated tests — test files live beside the module they cover.
 
 ## Mock API
 
-The dashboard does **not** execute JavaScript. Running a snippet sends a `POST` request to `/api/run`:
+The dashboard does **not** execute code. Running a snippet sends a `POST` request to `/api/run` (body is the snippet text only — language does not affect the mock):
 
 **Request**
 
@@ -75,11 +77,11 @@ Each request waits a random **2–3 seconds** before responding so loading UX ca
 
 The **dashboard shell** has three regions:
 
-- **Shell chrome** (top) — theme toggle on all viewports; snippet-list expand/collapse on desktop/tablet; centered product title on all viewports; back control on mobile when snippet details are showing
-- **Workspace** — snippet list and snippet details (side by side on desktop/tablet; exclusive list **or** details on mobile)
-- **Output Console** (bottom) — full-width session log spanning beneath the workspace
+- **Shell chrome** (top) — theme toggle on all viewports; snippet-list expand/collapse on desktop/tablet; centered product title (“Snippet Manager”) on all viewports; back control on mobile when snippet details are showing. No console control in chrome.
+- **Workspace** — snippet list and snippet details. Desktop/tablet: side by side (list may collapse to an icon rail). Mobile: exclusive list **or** details (no icon rail).
+- **Output Console** (bottom) — full-width session log spanning beneath the workspace; expand/collapse via the persistent strip only
 
-On desktop and tablet, snippet details shows a placeholder when nothing is selected, or the editor zone (toolbar + Monaco) when a snippet is active. On mobile, the snippet list fills the workspace until a row is selected; back clears the selection and returns to the list. Creating a snippet on mobile does not open details — rename stays on the list; tap a row to edit. Mobile rename uses an explicit row edit control; desktop keeps double-click.
+On desktop and tablet, snippet details shows a placeholder when nothing is selected, or the editor zone (language control + toolbar + Monaco) when a snippet is active. On mobile, the snippet list fills the workspace until a row is selected; back clears the selection and returns to the list. Creating a snippet on mobile does not open details — rename stays on the list; tap a row to edit. Mobile rename uses an explicit row edit control; desktop keeps double-click. New Snippet sits at the bottom of the mobile list.
 
 The Output Console is session-scoped: one shared log for all runs in the current tab, with each entry tagged by snippet name (`[HH:MM:SS] snippetName › message`). Reloading or opening a new tab restores the snippet list from browser storage with **no** active snippet; the console starts empty again.
 
@@ -92,7 +94,7 @@ The Output Console starts **collapsed** (strip only). Running a snippet expands 
 | Viewport | Width | Workspace default | Output Console default |
 | --- | --- | --- | --- |
 | Desktop | ≥ 1024px (`lg`) | Side-by-side; list expanded | Collapsed (strip only) |
-| Tablet | 768–1023px (`md`–`lg`) | Side-by-side; list expanded (same as desktop for now) | Collapsed (strip only) |
+| Tablet | 768–1023px (`md`–`lg`) | Side-by-side; list expanded (same as desktop) | Collapsed (strip only) |
 | Mobile | < 768px (below `md`) | Exclusive list or details (no icon rail) | Collapsed (strip only) |
 
 Breakpoints use Tailwind defaults via VueUse `useBreakpoints`. Console expand/collapse persists for the session regardless of resize. See [ADR 0005](docs/adr/0005-shell-chrome-and-mobile-stack.md).
@@ -103,7 +105,7 @@ Collapse the snippet list to a narrow **icon rail** (48px) via the toggle in **s
 
 ### Output Console toggle
 
-Expand/collapse via the persistent strip labeled **Output Console** at the bottom of the shell. Collapsed state shows the strip only; expanded state shows the log beneath it. The whole strip is clickable; Clear does not collapse the panel. There is no separate console button in shell chrome.
+Expand/collapse via the persistent strip labeled **Output Console** at the bottom of the shell. Collapsed state shows the strip only; expanded state grows the whole console panel to a fixed height (strip + scrollable log). The whole strip is clickable; Clear does not collapse the panel. There is no separate console button in shell chrome.
 
 ## Project structure
 
