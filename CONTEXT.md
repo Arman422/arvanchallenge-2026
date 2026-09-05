@@ -1,19 +1,23 @@
 # Code Snippet Dashboard
 
-A browser-based workspace where users write JavaScript snippets, run them against a mock execution API, and read results in a session console. The snippet list is kept in the browser and shared across tabs of the same origin; the console and selection are not. Navigation follows an Obsidian-like model: a scannable snippet list on the left, snippet details on the right, and shared run output along the bottom.
+A browser-based workspace where users write language-tagged snippets, run them against a mock execution API, and read results in a session console. The snippet list is kept in the browser and shared across tabs of the same origin; the console and selection are not. Navigation follows an Obsidian-like model: a scannable snippet list on the left, snippet details on the right, and shared run output along the bottom.
 
 ## Language
 
 **Snippet**:
-A single editable unit of JavaScript source code the user can name, select, and run. Snippet data outlives a single tab and reload within the same browser origin.
+A named editable body of text with a snippet language, which the user can select and run. Snippet data outlives a single tab and reload within the same browser origin.
 _Avoid_: File, document, buffer
+
+**Snippet language**:
+The language label on a snippet. It controls how the editor presents the body — syntax coloring for supported languages, and error marking only for languages that provide it. Plain text is a snippet language with no programming-language presentation. New snippets default to JavaScript; the user can change the language later from snippet details.
+_Avoid_: File extension, MIME type, editor engine language id
 
 **Snippet list**:
 A flat, ordered collection of all snippets — no folders, paths, or file explorer. Served from browser-local storage shared across tabs of the same origin. Serves as the sole navigation mechanism; there is no separate tab bar.
 _Avoid_: File tree, workspace, project, tab bar
 
 **Snippet metadata**:
-Scanning labels shown on each snippet list row — language (JavaScript in v1) and a last-edited time shown as a relative age that stays current while the list is open.
+Scanning labels shown on each snippet list row — snippet language and a last-edited time shown as a relative age that stays current while the list is open.
 _Avoid_: Dirty indicator, unsaved badge, save status, created timestamp
 
 **Active snippet**:

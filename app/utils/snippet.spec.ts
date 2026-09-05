@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import type { Snippet } from '~/types/snippet'
+import type { Snippet, SnippetLanguage } from '~/types/snippet'
 import {
+  SNIPPET_LANGUAGES,
   SNIPPET_LIST_STORAGE_KEY,
   adoptRemoteSnippetList,
   createSnippetListWriter,
@@ -9,6 +10,7 @@ import {
   parseSnippetList,
   readSnippetListFromStorage,
   serializeSnippetList,
+  toEditorLanguageId,
   writeSnippetListToStorage
 } from './snippet'
 
@@ -80,11 +82,83 @@ describe('SNIPPET_LIST_STORAGE_KEY', () => {
   })
 })
 
+describe('SNIPPET_LANGUAGES', () => {
+  it('lists the curated allowlist in product order', () => {
+    expect(SNIPPET_LANGUAGES).toEqual([
+      'Plain Text',
+      'JavaScript',
+      'TypeScript',
+      'JSON',
+      'HTML',
+      'CSS',
+      'Less',
+      'SCSS',
+      'Markdown',
+      'YAML',
+      'XML',
+      'Python',
+      'Go',
+      'Rust',
+      'Java',
+      'C',
+      'C++',
+      'C#',
+      'SQL',
+      'Shell',
+      'Dockerfile'
+    ])
+  })
+})
+
+describe('toEditorLanguageId', () => {
+  it('maps every allowlisted snippet language to an editor language id', () => {
+    const expected: Record<SnippetLanguage, string> = {
+      'Plain Text': 'plaintext',
+      JavaScript: 'javascript',
+      TypeScript: 'typescript',
+      JSON: 'json',
+      HTML: 'html',
+      CSS: 'css',
+      Less: 'less',
+      SCSS: 'scss',
+      Markdown: 'markdown',
+      YAML: 'yaml',
+      XML: 'xml',
+      Python: 'python',
+      Go: 'go',
+      Rust: 'rust',
+      Java: 'java',
+      C: 'c',
+      'C++': 'cpp',
+      'C#': 'csharp',
+      SQL: 'sql',
+      Shell: 'shell',
+      Dockerfile: 'dockerfile'
+    }
+
+    for (const language of SNIPPET_LANGUAGES) {
+      expect(toEditorLanguageId(language)).toBe(expected[language])
+    }
+  })
+})
+
 describe('serializeSnippetList / parseSnippetList', () => {
   it('round-trips a snippet list preserving order and fields', () => {
     const raw = serializeSnippetList(sampleSnippets)
 
     expect(parseSnippetList(raw)).toEqual(sampleSnippets)
+  })
+
+  it('round-trips every allowlisted snippet language', () => {
+    const multilingual = SNIPPET_LANGUAGES.map((language, index) => ({
+      id: `id-${index}`,
+      name: `snippet-${language}`,
+      code: `body-${index}`,
+      language,
+      lastEditedAt: 1_700_000_000_000 + index
+    }))
+
+    expect(parseSnippetList(serializeSnippetList(multilingual))).toEqual(multilingual)
   })
 
   it('returns an empty list for null, empty, or corrupt payloads', () => {
@@ -103,6 +177,18 @@ describe('serializeSnippetList / parseSnippetList', () => {
     ])
 
     expect(parseSnippetList(mixed)).toEqual([sampleSnippets[0], sampleSnippets[1]])
+  })
+
+  it('rejects unknown languages on load', () => {
+    const unknownLanguage = JSON.stringify([
+      {
+        ...sampleSnippets[0],
+        language: 'Brainfuck'
+      },
+      sampleSnippets[1]
+    ])
+
+    expect(parseSnippetList(unknownLanguage)).toEqual([sampleSnippets[1]])
   })
 })
 

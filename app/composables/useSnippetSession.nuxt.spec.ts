@@ -53,6 +53,24 @@ describe('useSnippetSession persistence', () => {
     expect(session.activeSnippetId.value).toBeNull()
   })
 
+  it('hydrates allowlisted non-JavaScript languages from storage', async () => {
+    const pythonSnippet: Snippet = {
+      id: 'py1',
+      name: 'hello',
+      code: 'print(1)',
+      language: 'Python',
+      lastEditedAt: 1_700_000_000_000
+    }
+    const storage = createMemoryStorage({
+      [SNIPPET_LIST_STORAGE_KEY]: serializeSnippetList([pythonSnippet])
+    })
+
+    const { useSnippetSession } = await import('./useSnippetSession')
+    const session = useSnippetSession({ storage })
+
+    expect(session.snippets.value).toEqual([pythonSnippet])
+  })
+
   it('write-through create immediately and code edits after debounce', async () => {
     const storage = createMemoryStorage()
     const { useSnippetSession } = await import('./useSnippetSession')

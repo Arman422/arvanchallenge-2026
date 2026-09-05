@@ -1,9 +1,62 @@
 import type { Snippet, SnippetLanguage } from '~/types/snippet'
 
 const UNTITLED_NAME_PATTERN = /^snippet-(\d+)$/
-const SNIPPET_LANGUAGES: readonly SnippetLanguage[] = ['JavaScript']
+
+/** Curated snippet-language allowlist (product labels, not editor engine ids). */
+export const SNIPPET_LANGUAGES: readonly SnippetLanguage[] = [
+  'Plain Text',
+  'JavaScript',
+  'TypeScript',
+  'JSON',
+  'HTML',
+  'CSS',
+  'Less',
+  'SCSS',
+  'Markdown',
+  'YAML',
+  'XML',
+  'Python',
+  'Go',
+  'Rust',
+  'Java',
+  'C',
+  'C++',
+  'C#',
+  'SQL',
+  'Shell',
+  'Dockerfile'
+]
+
+const SNIPPET_LANGUAGE_TO_EDITOR_ID: Record<SnippetLanguage, string> = {
+  'Plain Text': 'plaintext',
+  JavaScript: 'javascript',
+  TypeScript: 'typescript',
+  JSON: 'json',
+  HTML: 'html',
+  CSS: 'css',
+  Less: 'less',
+  SCSS: 'scss',
+  Markdown: 'markdown',
+  YAML: 'yaml',
+  XML: 'xml',
+  Python: 'python',
+  Go: 'go',
+  Rust: 'rust',
+  Java: 'java',
+  C: 'c',
+  'C++': 'cpp',
+  'C#': 'csharp',
+  SQL: 'sql',
+  Shell: 'shell',
+  Dockerfile: 'dockerfile'
+}
 
 export const SNIPPET_LIST_STORAGE_KEY = 'snippet-dashboard:snippet-list'
+
+/** Maps a snippet language label to the editor engine language id (Monaco today). */
+export function toEditorLanguageId(language: SnippetLanguage): string {
+  return SNIPPET_LANGUAGE_TO_EDITOR_ID[language]
+}
 
 export type SnippetListStorage = {
   getItem(key: string): string | null

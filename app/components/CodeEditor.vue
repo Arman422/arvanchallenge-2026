@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import type { editor } from 'monaco-editor'
+import type { SnippetLanguage } from '~/types/snippet'
+import { toEditorLanguageId } from '~/utils/snippet'
 
 const props = withDefaults(defineProps<{
   modelValue: string
-  language?: string
+  language?: SnippetLanguage
   readOnly?: boolean
 }>(), {
-  language: 'javascript',
+  language: 'JavaScript',
   readOnly: false
 })
 
@@ -37,7 +39,60 @@ function applyReadOnly() {
   editorInstance?.updateOptions({ readOnly: props.readOnly })
 }
 
+function applyLanguage() {
+  if (!monacoModule || !editorInstance) {
+    return
+  }
+
+  const model = editorInstance.getModel()
+  if (!model) {
+    return
+  }
+
+  monacoModule.editor.setModelLanguage(model, toEditorLanguageId(props.language))
+}
+
+/** Vite workers so Monaco’s built-in validators can surface error squiggles (ADR 0004). */
+async function ensureMonacoEnvironment() {
+  if (globalThis.MonacoEnvironment) {
+    return
+  }
+
+  const [
+    { default: EditorWorker },
+    { default: JsonWorker },
+    { default: CssWorker },
+    { default: HtmlWorker },
+    { default: TsWorker }
+  ] = await Promise.all([
+    import('monaco-editor/editor/editor.worker?worker'),
+    import('monaco-editor/language/json/json.worker?worker'),
+    import('monaco-editor/language/css/css.worker?worker'),
+    import('monaco-editor/language/html/html.worker?worker'),
+    import('monaco-editor/language/typescript/ts.worker?worker')
+  ])
+
+  globalThis.MonacoEnvironment = {
+    getWorker(_workerId: string, label: string) {
+      if (label === 'json') {
+        return new JsonWorker()
+      }
+      if (label === 'css' || label === 'scss' || label === 'less') {
+        return new CssWorker()
+      }
+      if (label === 'html' || label === 'handlebars' || label === 'razor') {
+        return new HtmlWorker()
+      }
+      if (label === 'typescript' || label === 'javascript') {
+        return new TsWorker()
+      }
+      return new EditorWorker()
+    }
+  }
+}
+
 onMounted(async () => {
+  await ensureMonacoEnvironment()
   monacoModule = await import('monaco-editor')
 
   if (!containerRef.value) {
@@ -48,14 +103,20 @@ onMounted(async () => {
 
   editorInstance = monacoModule.editor.create(containerRef.value, {
     value: props.modelValue,
-    language: props.language,
+    language: toEditorLanguageId(props.language),
     readOnly: props.readOnly,
     automaticLayout: true,
     minimap: { enabled: false },
     scrollBeyondLastLine: false,
     fontSize: 14,
     tabSize: 2,
-    padding: { top: 16, bottom: 16 }
+    padding: { top: 16, bottom: 16 },
+    // Snippet pad: no autocomplete / suggestions (ADR 0004).
+    quickSuggestions: false,
+    suggestOnTriggerCharacters: false,
+    wordBasedSuggestions: 'off',
+    parameterHints: { enabled: false },
+    snippetSuggestions: 'none'
   })
 
   editorInstance.onDidChangeModelContent(() => {
@@ -80,6 +141,7 @@ watch(() => props.modelValue, (value) => {
   editorInstance.setValue(value)
 })
 
+watch(() => props.language, applyLanguage)
 watch(() => props.readOnly, applyReadOnly)
 watch(() => colorMode.value, applyTheme)
 

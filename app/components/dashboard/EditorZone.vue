@@ -115,7 +115,7 @@ function confirmDelete() {
         <CodeEditor
           :key="activeSnippet.id"
           v-model="codeModel"
-          language="javascript"
+          :language="activeSnippet.language"
           :read-only="isRunning"
           class="min-h-0 flex-1"
           data-testid="editor-code-input"
