@@ -160,4 +160,14 @@ describe('SnippetListPanel icon rail', () => {
     expect(wrapper!.find('[data-testid="snippet-list-panel"]').attributes('data-rail')).toBeUndefined()
     expect(wrapper!.find('[data-testid="snippet-list-rail"]').exists()).toBe(false)
   })
+
+  it('places New Snippet at the bottom on mobile and at the top on desktop', async () => {
+    await mountPanel()
+    expect(wrapper!.get('[data-testid="new-snippet-bar"]').attributes('data-placement')).toBe('top')
+
+    __setViewportTierForTests('mobile')
+    await nextTick()
+    expect(wrapper!.get('[data-testid="new-snippet-bar"]').attributes('data-placement')).toBe('bottom')
+    expect(wrapper!.find('[data-testid="new-snippet-button"]').exists()).toBe(true)
+  })
 })

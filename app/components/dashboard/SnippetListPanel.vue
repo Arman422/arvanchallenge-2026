@@ -24,6 +24,8 @@ const renameInputRef = ref<HTMLInputElement | null>(null)
 const showIconRail = computed(
   () => tier.value !== 'mobile' && !snippetListExpanded.value
 )
+/** Mobile exclusive list: create sits in the thumb zone under the rows. */
+const createAtBottom = computed(() => tier.value === 'mobile')
 
 function setRenameInputRef(el: Element | null) {
   renameInputRef.value = el instanceof HTMLInputElement ? el : null
@@ -99,7 +101,10 @@ function handleRenameKeydown(event: KeyboardEvent) {
     :data-rail="showIconRail ? 'true' : undefined"
   >
     <div
+      v-if="!createAtBottom"
       class="flex shrink-0 items-center justify-center gap-1 border-b border-default p-2"
+      data-testid="new-snippet-bar"
+      data-placement="top"
     >
       <UButton
         v-if="showIconRail"
@@ -226,5 +231,21 @@ function handleRenameKeydown(event: KeyboardEvent) {
         </li>
       </ul>
     </template>
+
+    <div
+      v-if="createAtBottom"
+      class="flex shrink-0 items-center justify-center gap-1 border-t border-default p-2"
+      data-testid="new-snippet-bar"
+      data-placement="bottom"
+    >
+      <UButton
+        class="min-w-0 flex-1"
+        block
+        icon="i-lucide-plus"
+        label="New Snippet"
+        data-testid="new-snippet-button"
+        @click="handleCreateSnippet"
+      />
+    </div>
   </aside>
 </template>
