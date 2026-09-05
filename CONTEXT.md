@@ -67,3 +67,7 @@ _Avoid_: Loading state, busy flag
 **Empty state**:
 No snippets in the browser store (first visit or after every snippet was deleted): the list shows a "+ New Snippet" call-to-action, snippet details shows a placeholder, and the console remains available at the shell bottom. A non-empty hydrated list with no active snippet still shows the details placeholder until the user selects or creates one.
 _Avoid_: Welcome screen, onboarding
+
+**Theme preference**:
+The user's chosen light or dark appearance for the dashboard shell. On first visit it is taken from the system appearance and then kept for later visits until the user changes it. No in-app theme control is exposed yet.
+_Avoid_: Color mode, system theme (after first visit it no longer tracks the OS), app header theme switch
