@@ -27,6 +27,11 @@ export const SNIPPET_LANGUAGES: readonly SnippetLanguage[] = [
   'Dockerfile'
 ]
 
+/** Character length of the longest allowlisted snippet-language label. */
+export function longestSnippetLanguageLabelLength(): number {
+  return Math.max(...SNIPPET_LANGUAGES.map(label => label.length))
+}
+
 const SNIPPET_LANGUAGE_TO_EDITOR_ID: Record<SnippetLanguage, string> = {
   'Plain Text': 'plaintext',
   JavaScript: 'javascript',

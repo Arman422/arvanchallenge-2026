@@ -6,6 +6,7 @@ import {
   adoptRemoteSnippetList,
   createSnippetListWriter,
   formatLastEditedAt,
+  longestSnippetLanguageLabelLength,
   nextUntitledName,
   parseSnippetList,
   readSnippetListFromStorage,
@@ -107,6 +108,13 @@ describe('SNIPPET_LANGUAGES', () => {
       'Shell',
       'Dockerfile'
     ])
+  })
+
+  it('reports the longest allowlisted label length for control sizing', () => {
+    expect(longestSnippetLanguageLabelLength()).toBe(
+      Math.max(...SNIPPET_LANGUAGES.map(label => label.length))
+    )
+    expect(longestSnippetLanguageLabelLength()).toBe(10)
   })
 })
 

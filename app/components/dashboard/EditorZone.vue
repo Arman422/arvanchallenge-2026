@@ -1,11 +1,29 @@
 <script setup lang="ts">
 import type { SnippetLanguage } from '~/types/snippet'
-import { SNIPPET_LANGUAGES, isSnippetEmpty } from '~/utils/snippet'
+import {
+  SNIPPET_LANGUAGES,
+  isSnippetEmpty,
+  longestSnippetLanguageLabelLength
+} from '~/utils/snippet'
 
 const { activeSnippet, updateSnippetCode, updateSnippetLanguage, deleteSnippet } = useSnippetSession()
 const { isRunning, runActiveSnippet } = useRunSnippet()
+const { tier } = useViewportTier()
 
 const isDeleteModalOpen = ref(false)
+
+/** Icon-only Run/Delete on the mobile viewport tier to avoid identity collision at 375px. */
+const compactActions = computed(() => tier.value === 'mobile')
+
+/** Width fits the longest allowlisted label (+ select chrome); max-w-full caps collision. */
+const languageSelectWidth = `calc(${longestSnippetLanguageLabelLength()}ch + 2.75rem)`
+const languageSelectStyle = {
+  width: languageSelectWidth
+}
+/** Keeps identity from crushing below the language control so the toolbar can wrap instead. */
+const identityRegionStyle = {
+  minWidth: languageSelectWidth
+}
 
 const codeModel = computed({
   get: () => activeSnippet.value?.code ?? '',
@@ -87,34 +105,51 @@ function confirmDelete() {
       data-testid="editor-active-snippet"
     >
       <header
-        class="flex shrink-0 items-center justify-between gap-3 border-b border-default dark:border-[#4c4c4c] px-4 py-3"
+        class="flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-default dark:border-[#4c4c4c] px-4 py-3"
         data-testid="editor-toolbar"
       >
-        <div class="min-w-0 flex-1">
+        <div
+          class="min-w-0 flex-1"
+          :style="identityRegionStyle"
+          data-testid="editor-toolbar-identity"
+        >
           <h2
             class="truncate text-sm font-medium text-highlighted"
             data-testid="active-snippet-name"
           >
             {{ activeSnippet.name }}
           </h2>
-          <USelect
-            v-model="languageModel"
-            :items="languageItems"
-            size="xs"
-            class="mt-1 w-44"
-            :disabled="isRunning"
-            aria-label="Snippet language"
-            data-testid="snippet-language-select"
-          />
+          <div
+            class="mt-1 max-w-full"
+            :style="languageSelectStyle"
+            data-testid="snippet-language-select-width"
+          >
+            <USelect
+              v-model="languageModel"
+              :items="languageItems"
+              size="xs"
+              class="w-full"
+              :disabled="isRunning"
+              aria-label="Snippet language"
+              data-testid="snippet-language-select"
+            />
+          </div>
         </div>
 
-        <div class="flex shrink-0 items-center gap-2">
+        <div
+          class="flex shrink-0 items-center gap-2"
+          data-testid="editor-toolbar-actions"
+        >
           <UButton
             color="primary"
             variant="solid"
+            size="sm"
+            :square="compactActions"
             icon="i-lucide-play"
             :loading="isRunning"
-            label="Run"
+            :label="compactActions ? undefined : 'Run'"
+            :aria-label="compactActions ? 'Run' : undefined"
+            :title="compactActions ? 'Run' : undefined"
             :disabled="!canRun"
             data-testid="run-snippet-button"
             @click="runActiveSnippet"
@@ -122,8 +157,12 @@ function confirmDelete() {
           <UButton
             color="error"
             variant="outline"
+            size="sm"
+            :square="compactActions"
             icon="i-lucide-trash"
-            label="Delete"
+            :label="compactActions ? undefined : 'Delete'"
+            :aria-label="compactActions ? 'Delete' : undefined"
+            :title="compactActions ? 'Delete' : undefined"
             :disabled="isRunning"
             data-testid="delete-snippet-button"
             @click="requestDelete"
