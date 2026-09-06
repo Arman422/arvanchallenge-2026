@@ -1,3 +1,4 @@
+import { tryOnMounted } from '@vueuse/core'
 import {
   getDefaultConsoleVisible,
   getDefaultSnippetListExpanded
@@ -18,7 +19,8 @@ export function useDashboardPanels() {
 
   const panelsViewportSynced = useState('dashboard-panels-viewport-synced', () => false)
 
-  onMounted(() => {
+  // tryOnMounted: safe when tests/composables call this outside setup.
+  tryOnMounted(() => {
     if (panelsViewportSynced.value) {
       return
     }
