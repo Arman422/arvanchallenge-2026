@@ -1,5 +1,5 @@
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
-import { type ViewportTier } from '~/utils/panelDefaults'
+import type { ViewportTier } from '~/utils/panelDefaults'
 
 /** Matches Tailwind `lg` — desktop layout defaults during SSR/prerender. */
 const SSR_DESKTOP_WIDTH = breakpointsTailwind.lg

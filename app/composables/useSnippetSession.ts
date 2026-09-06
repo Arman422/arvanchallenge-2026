@@ -117,8 +117,8 @@ export function useSnippetSession(options: SnippetSessionOptions = {}) {
 
   if (
     import.meta.client
-    && storage === localStorage
-    && !storageListenerAttached
+      && storage === localStorage
+      && !storageListenerAttached
   ) {
     window.addEventListener('storage', onStorageEvent)
     storageListenerAttached = true

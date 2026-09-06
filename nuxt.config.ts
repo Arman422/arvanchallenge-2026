@@ -18,12 +18,6 @@ export default defineNuxtConfig({
     classSuffix: ''
   },
 
-  fonts: {
-    families: [
-      { name: 'Inter', provider: 'google' }
-    ]
-  },
-
   routeRules: {
     '/': { prerender: true }
   },
@@ -37,5 +31,11 @@ export default defineNuxtConfig({
         braceStyle: '1tbs'
       }
     }
+  },
+
+  fonts: {
+    families: [
+      { name: 'Inter', provider: 'google' }
+    ]
   }
 })
